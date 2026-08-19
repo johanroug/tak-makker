@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Quote } from "../types/quote";
+import type { Quote } from "@/schemas/quote";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -18,9 +18,7 @@ export default function Home() {
       }),
     });
 
-    const data = await response.json();
-
-    const generatedQuote: Quote = JSON.parse(data.result);
+    const generatedQuote: Quote = await response.json();
 
     setQuote(generatedQuote);
   }
