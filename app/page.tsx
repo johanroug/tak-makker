@@ -7,22 +7,22 @@ export default function Home() {
   const [description, setDescription] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
 
-  function createQuote() {
-    const fakeQuote: Quote = {
-      customer: {
-        name: "Jens Hansen",
+  async function createQuote() {
+    const response = await fetch("/api/quote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      project: {
-        title: "Ny terrasse",
-        description: description,
-      },
-      price: {
-        amount: 85000,
-        vatIncluded: false,
-      },
-    };
+      body: JSON.stringify({
+        description,
+      }),
+    });
 
-    setQuote(fakeQuote);
+    const data = await response.json();
+
+    const generatedQuote: Quote = JSON.parse(data.result);
+
+    setQuote(generatedQuote);
   }
 
   return (
