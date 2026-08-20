@@ -17,3 +17,13 @@ export const QuoteSchema = z.object({
 });
 
 export type Quote = z.infer<typeof QuoteSchema>;
+
+export const QuoteResponseSchema = z.object({
+  complete: z.boolean(),
+
+  questions: z.array(z.string()),
+
+  quote: QuoteSchema.nullable(),
+});
+
+export type QuoteResponse = z.infer<typeof QuoteResponseSchema>;

@@ -1,26 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import type { Quote } from "@/schemas/quote";
+import type { QuoteResponse } from "@/schemas/quote";
+import type { Message } from "@/types/message";
 
 export default function Home() {
   const [description, setDescription] = useState("");
-  const [quote, setQuote] = useState<Quote | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [quoteResponse, setQuoteResponse] = useState<QuoteResponse | null>(null);
 
   async function createQuote() {
+    const userMessage: Message = {
+      role: "user",
+      content: description,
+    };
+
+    const updatedMessages = [...messages, userMessage];
+
+    setMessages(updatedMessages);
+
     const response = await fetch("/api/quote", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        description,
+        messages: updatedMessages,
       }),
     });
 
-    const generatedQuote: Quote = await response.json();
+    const generatedResponse: QuoteResponse = await response.json();
 
-    setQuote(generatedQuote);
+    setQuoteResponse(generatedResponse);
+
+    if (!generatedResponse.complete) {
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: generatedResponse.questions.join("\n"),
+      };
+
+      setMessages([
+        ...updatedMessages,
+        assistantMessage,
+      ]);
+
+      setDescription("");
+      console.log('ok')
+    }
   }
 
   return (
@@ -39,20 +65,33 @@ export default function Home() {
         Lav tilbud
       </button>
 
-      {quote && (
+      {quoteResponse && !quoteResponse.complete && (
         <div>
-          <h2>{quote.project.title}</h2>
+          <h2>Jeg mangler lige lidt, makker</h2>
+
+          {quoteResponse.questions.map((question) => (
+            <p key={question}>{question}</p>
+          ))}
+        </div>
+      )}
+
+      {quoteResponse?.complete && quoteResponse.quote && (
+        <div>
+          <h2>{quoteResponse.quote.project.title}</h2>
 
           <p>
-            <strong>Kunde:</strong> {quote.customer.name}
+            <strong>Kunde:</strong>{" "}
+            {quoteResponse.quote.customer.name}
           </p>
 
           <p>
-            <strong>Beskrivelse:</strong> {quote.project.description}
+            <strong>Beskrivelse:</strong>{" "}
+            {quoteResponse.quote.project.description}
           </p>
 
           <p>
-            <strong>Pris:</strong> {quote.price.amount} kr.
+            <strong>Pris:</strong>{" "}
+            {quoteResponse.quote.price.amount} kr.
           </p>
         </div>
       )}
