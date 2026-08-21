@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { QuoteResponse } from "@/schemas/quote";
 import type { Message } from "@/types/message";
+import styles from "./page.module.scss";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -45,56 +46,66 @@ export default function Home() {
       ]);
 
       setDescription("");
-      console.log('ok')
     }
   }
 
   return (
-    <main>
-      <h1>Tak Makker</h1>
-      <p>Hvad skal vi hjælpe dig med?</p>
-
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Fortæl hvad du skal lave..."
-        rows={8}
-      />
-
-      <button onClick={createQuote}>
-        Lav tilbud
-      </button>
-
-      {quoteResponse && !quoteResponse.complete && (
-        <div>
-          <h2>Jeg mangler lige lidt, makker</h2>
-
-          {quoteResponse.questions.map((question) => (
-            <p key={question}>{question}</p>
-          ))}
-        </div>
-      )}
-
-      {quoteResponse?.complete && quoteResponse.quote && (
-        <div>
-          <h2>{quoteResponse.quote.project.title}</h2>
-
-          <p>
-            <strong>Kunde:</strong>{" "}
-            {quoteResponse.quote.customer.name}
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Tak Makker</h1>
+          <p className={styles.subtitle}>
+            Din digitale makker på jobbet.
           </p>
+        </header>
 
-          <p>
-            <strong>Beskrivelse:</strong>{" "}
-            {quoteResponse.quote.project.description}
-          </p>
+        <section className={styles.inputCard}>
+          <textarea
+            className={styles.textarea}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Fortæl hvad du skal lave..."
+          />
 
-          <p>
-            <strong>Pris:</strong>{" "}
-            {quoteResponse.quote.price.amount} kr.
-          </p>
-        </div>
-      )}
+          <button
+            className={styles.button}
+            onClick={createQuote}
+          >
+            Lav tilbud
+          </button>
+        </section>
+
+        {quoteResponse && !quoteResponse.complete && (
+          <section className={styles.questions}>
+            <h2>Jeg mangler lige lidt, makker</h2>
+
+            {quoteResponse.questions.map((question) => (
+              <p key={question}>{question}</p>
+            ))}
+          </section>
+        )}
+
+        {quoteResponse?.complete && quoteResponse.quote && (
+          <section className={styles.result}>
+            <h2>{quoteResponse.quote.project.title}</h2>
+
+            <p>
+              <strong>Kunde:</strong>{" "}
+              {quoteResponse.quote.customer.name}
+            </p>
+
+            <p>
+              <strong>Beskrivelse:</strong>{" "}
+              {quoteResponse.quote.project.description}
+            </p>
+
+            <p>
+              <strong>Pris:</strong>{" "}
+              {quoteResponse.quote.price.amount} kr.
+            </p>
+          </section>
+        )}
+      </div>
     </main>
   );
 }

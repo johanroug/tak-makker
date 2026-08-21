@@ -1,0 +1,79 @@
+.page {
+  min-height: 100vh;
+  padding: 48px 24px;
+  background: #f4f3ef;
+}
+
+.container {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 18px;
+  color: #666;
+}
+
+.inputCard {
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 8%);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font: inherit;
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+  }
+}
+
+.button {
+  margin-top: 16px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #222;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.result {
+  margin-top: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+}
+
+.questions {
+  margin-top: 24px;
+  padding: 20px;
+  background: #fff8e8;
+  border-radius: 12px;
+}
