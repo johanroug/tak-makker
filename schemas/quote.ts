@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const WorkItemSchema = z.object({
+  trade: z.string(),
+  description: z.string(),
+});
+
+export const MaterialSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
 export const QuoteSchema = z.object({
   customer: z.object({
     name: z.string(),
@@ -9,6 +19,10 @@ export const QuoteSchema = z.object({
     title: z.string(),
     description: z.string(),
   }),
+
+  workItems: z.array(WorkItemSchema),
+
+  materials: z.array(MaterialSchema),
 
   price: z.object({
     amount: z.number(),
@@ -21,7 +35,11 @@ export type Quote = z.infer<typeof QuoteSchema>;
 export const QuoteResponseSchema = z.object({
   complete: z.boolean(),
 
-  questions: z.array(z.string()),
+  questions: z.array(z.string()).max(3),
+
+  workItems: z.array(WorkItemSchema),
+
+  materials: z.array(MaterialSchema),
 
   quote: QuoteSchema.nullable(),
 });
