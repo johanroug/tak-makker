@@ -44,44 +44,6 @@
     transform 400ms ease;
 }
 
-.inputCard {
-  padding: 24px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgb(0 0 0 / 8%);
-}
-
-.textarea {
-  width: 100%;
-  min-height: 160px;
-  padding: 16px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font: inherit;
-  resize: vertical;
-
-  &:focus {
-    outline: 2px solid #222;
-    outline-offset: 2px;
-  }
-}
-
-.button {
-  margin-top: 16px;
-  padding: 12px 20px;
-  border: 0;
-  border-radius: 10px;
-  background: #222;
-  color: white;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.9;
-  }
-}
-
 .conversationColumn {
   opacity: 0;
   transform: translateX(40px);
@@ -109,48 +71,6 @@
     transform: translateX(0);
     pointer-events: auto;
   }
-}
-
-.messages {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.userMessage,
-.assistantMessage {
-  max-width: 85%;
-  padding: 14px 16px;
-  border-radius: 14px;
-}
-
-.userMessage {
-  align-self: flex-end;
-  background: #e8e8e8;
-}
-
-.assistantMessage {
-  align-self: flex-start;
-  background: white;
-}
-
-.messageText {
-  margin: 6px 0 0;
-  white-space: pre-line;
-}
-
-.questions {
-  margin-top: 24px;
-  padding: 20px;
-  background: #fff8e8;
-  border-radius: 12px;
-}
-
-.result {
-  margin-top: 24px;
-  padding: 24px;
-  background: white;
-  border-radius: 16px;
 }
 
 @media (max-width: 800px) {

@@ -1,0 +1,27 @@
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.userMessage,
+.assistantMessage {
+  max-width: 85%;
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background: #e8e8e8;
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  background: white;
+}
+
+.messageText {
+  margin: 6px 0 0;
+  white-space: pre-line;
+}

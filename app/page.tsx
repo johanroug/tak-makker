@@ -4,6 +4,9 @@ import { useState } from "react";
 import type { QuoteResponse } from "@/schemas/quote";
 import type { Message } from "@/types/message";
 import styles from "./page.module.scss";
+import QuoteInput from "./components/QuoteInput/QuoteInput";
+import Conversation from "./components/Conversation/Conversation";
+import QuoteResult from "./components/QuoteResult/QuoteResult";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -54,9 +57,8 @@ export default function Home() {
   return (
     <main className={styles.page}>
       <div
-        className={`${styles.container} ${
-          conversationStarted ? styles.conversationStarted : ""
-        }`}
+        className={`${styles.container} ${conversationStarted ? styles.conversationStarted : ""
+          }`}
       >
         <header className={styles.header}>
           <h1 className={styles.title}>Tak Makker</h1>
@@ -68,78 +70,12 @@ export default function Home() {
 
         <div className={styles.workspace}>
           <section className={styles.inputColumn}>
-            <div className={styles.inputCard}>
-              <textarea
-                className={styles.textarea}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Fortæl hvad du skal lave..."
-              />
-
-              <button
-                className={styles.button}
-                onClick={createQuote}
-              >
-                Lav tilbud
-              </button>
-            </div>
+            <QuoteInput description={description} onDescriptionChange={setDescription} onSubmit={createQuote} />
           </section>
 
           <section className={styles.conversationColumn}>
-            <div className={styles.messages}>
-              {messages.toReversed().map((message, index) => (
-                <div
-                  key={index}
-                  className={
-                    message.role === "user"
-                      ? styles.userMessage
-                      : styles.assistantMessage
-                  }
-                >
-                  <strong>
-                    {message.role === "user"
-                      ? "Dig"
-                      : "Tak Makker"}
-                    :
-                  </strong>
-
-                  <p className={styles.messageText}>
-                    {message.content}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {quoteResponse && !quoteResponse.complete && (
-              <section className={styles.questions}>
-                <h2>Jeg mangler lige lidt, makker</h2>
-
-                {quoteResponse.questions.map((question) => (
-                  <p key={question}>{question}</p>
-                ))}
-              </section>
-            )}
-
-            {quoteResponse?.complete && quoteResponse.quote && (
-              <section className={styles.result}>
-                <h2>{quoteResponse.quote.project.title}</h2>
-
-                <p>
-                  <strong>Kunde:</strong>{" "}
-                  {quoteResponse.quote.customer.name}
-                </p>
-
-                <p>
-                  <strong>Beskrivelse:</strong>{" "}
-                  {quoteResponse.quote.project.description}
-                </p>
-
-                <p>
-                  <strong>Pris:</strong>{" "}
-                  {quoteResponse.quote.price.amount} kr.
-                </p>
-              </section>
-            )}
+            <Conversation messages={messages} />
+            <QuoteResult quoteResponse={quoteResponse} />
           </section>
         </div>
       </div>
