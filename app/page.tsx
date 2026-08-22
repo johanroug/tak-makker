@@ -172,6 +172,7 @@ export default function Home() {
 
   return (
     <main className={styles.page}>
+      Jeg skal totalrenovere et badeværelse
       <div
         className={`${styles.container} ${conversationStarted ? styles.conversationStarted : ""
           }`}

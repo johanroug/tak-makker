@@ -42,6 +42,12 @@ export default function WorkItems({
                 </strong>
 
                 <p>{item.description}</p>
+
+                {item.estimatedHours !== null && (
+                  <p className={styles.estimate}>
+                    Estimeret tid: {item.estimatedHours} timer
+                  </p>
+                )}
               </div>
             </label>
           );

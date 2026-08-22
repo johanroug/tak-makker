@@ -5,6 +5,7 @@ export const WorkItemSchema = z.object({
   trade: z.string(),
   description: z.string(),
   status: z.enum(["suggested", "accepted", "rejected"]),
+  estimatedHours: z.number().nullable(),
 });
 export type WorkItem = z.infer<typeof WorkItemSchema>;
 
