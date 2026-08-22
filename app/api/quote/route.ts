@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { QuoteResponseSchema } from "@/schemas/quote";
-import { aiInstructions } from "../../lib/ai/ai-instructions";
+import { aiInstructions } from "../../lib/ai/instructions";
+import { createWorkItemsContext } from "@/app/lib/ai/work-items-context";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -17,6 +18,10 @@ export async function POST(request: Request) {
       {
         role: "system",
         content: aiInstructions,
+      },
+      {
+        role: "system",
+        content: createWorkItemsContext(body.workItems),
       },
       ...body.messages,
     ],

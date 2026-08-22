@@ -56,4 +56,14 @@ Som minimum skal du kende:
 - kundens navn
 - prisen
 - om prisen er inkl. moms
+
+Når du foreslår nye arbejdsopgaver, skal status være "suggested".
+
+Hvis håndværkeren tidligere har accepteret eller afvist en arbejdsopgave,
+skal du bevare den status og ikke overskrive den.
+
+Når du foreslår nye materialer, skal status være "suggested".
+
+Hvis håndværkeren tidligere har accepteret eller afvist et materiale,
+skal du bevare den status og ikke overskrive den.
 `;

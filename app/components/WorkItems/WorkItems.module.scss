@@ -1,0 +1,33 @@
+.container {
+  margin-top: 24px;
+
+  h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+  }
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+
+  p {
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+}
+
+.trade {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #666;
+}

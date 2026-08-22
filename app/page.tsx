@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { QuoteResponse } from "@/schemas/quote";
+import type { QuoteResponse, WorkItem } from "@/schemas/quote";
 import type { Message } from "@/types/message";
 import styles from "./page.module.scss";
 import QuoteInput from "./components/QuoteInput/QuoteInput";
 import Conversation from "./components/Conversation/Conversation";
 import QuoteResult from "./components/QuoteResult/QuoteResult";
+import WorkItems from "./components/WorkItems/WorkItems";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -30,6 +31,7 @@ export default function Home() {
       },
       body: JSON.stringify({
         messages: updatedMessages,
+        workItems: quoteResponse?.workItems ?? [],
       }),
     });
 
@@ -54,6 +56,31 @@ export default function Home() {
 
   const conversationStarted = messages.length > 0;
 
+  function handleWorkItemChange(
+    workItem: WorkItem,
+    accepted: boolean
+  ) {
+    if (!quoteResponse) {
+      return;
+    }
+
+    const updatedWorkItems: WorkItem[] = quoteResponse.workItems.map((item) => {
+      if (item !== workItem) {
+        return item;
+      }
+
+      return {
+        ...item,
+        status: accepted ? "accepted" : "rejected",
+      };
+    });
+
+    setQuoteResponse({
+      ...quoteResponse,
+      workItems: updatedWorkItems,
+    });
+  }
+
   return (
     <main className={styles.page}>
       <div
@@ -75,6 +102,12 @@ export default function Home() {
 
           <section className={styles.conversationColumn}>
             <Conversation messages={messages} />
+            {quoteResponse && (
+              <WorkItems
+                workItems={quoteResponse.workItems}
+                onWorkItemChange={handleWorkItemChange}
+              />
+            )}
             <QuoteResult quoteResponse={quoteResponse} />
           </section>
         </div>

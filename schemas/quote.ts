@@ -3,12 +3,16 @@ import { z } from "zod";
 export const WorkItemSchema = z.object({
   trade: z.string(),
   description: z.string(),
+  status: z.enum(["suggested", "accepted", "rejected"]),
 });
+export type WorkItem = z.infer<typeof WorkItemSchema>;
 
 export const MaterialSchema = z.object({
   name: z.string(),
   description: z.string(),
+  status: z.enum(["suggested", "accepted", "rejected"]),
 });
+export type Material = z.infer<typeof MaterialSchema>;
 
 export const QuoteSchema = z.object({
   customer: z.object({
@@ -29,7 +33,6 @@ export const QuoteSchema = z.object({
     vatIncluded: z.boolean(),
   }),
 });
-
 export type Quote = z.infer<typeof QuoteSchema>;
 
 export const QuoteResponseSchema = z.object({
@@ -43,5 +46,4 @@ export const QuoteResponseSchema = z.object({
 
   quote: QuoteSchema.nullable(),
 });
-
 export type QuoteResponse = z.infer<typeof QuoteResponseSchema>;
