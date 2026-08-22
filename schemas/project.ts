@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const WorkItemSchema = z.object({
+  id: z.string(),
   trade: z.string(),
   description: z.string(),
   status: z.enum(["suggested", "accepted", "rejected"]),
@@ -8,6 +9,7 @@ export const WorkItemSchema = z.object({
 export type WorkItem = z.infer<typeof WorkItemSchema>;
 
 export const MaterialSchema = z.object({
+  id: z.string(),
   name: z.string(),
   description: z.string(),
   status: z.enum(["suggested", "accepted", "rejected"]),
@@ -47,3 +49,9 @@ export const ProjectResponseSchema = z.object({
   quote: QuoteSchema.nullable(),
 });
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
+
+export const ProjectDraftSchema = z.object({
+  workItems: z.array(WorkItemSchema),
+  materials: z.array(MaterialSchema),
+});
+export type ProjectDraft = z.infer<typeof ProjectDraftSchema>;

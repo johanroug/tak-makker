@@ -12,12 +12,14 @@ export default function QuoteResult({
     return null;
   }
 
+  const questions = projectResponse.questions ?? [];
+
   if (!projectResponse.complete) {
     return (
       <section className={styles.questions}>
         <h2>Jeg mangler lige lidt, makker</h2>
 
-        {projectResponse.questions.map((question) => (
+        {questions.map((question) => (
           <p key={question}>{question}</p>
         ))}
       </section>

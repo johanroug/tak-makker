@@ -22,9 +22,9 @@ export default function WorkItems({
       <h2>Foreslåede arbejdsopgaver</h2>
 
       <div className={styles.items}>
-        {workItems.map((item, index) => {
+        {workItems.map((item) => {
           return (
-            <label className={styles.item} key={index}>
+            <label className={styles.item} key={item.id}>
               <input
                 type="checkbox"
                 checked={item.status === "accepted"}

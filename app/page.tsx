@@ -1,18 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import type { ProjectResponse, WorkItem } from "@/schemas/project";
+import { ProjectResponseSchema, type Material, type ProjectDraft, type ProjectResponse, type WorkItem } from "@/schemas/project";
 import type { Message } from "@/types/message";
 import styles from "./page.module.scss";
 import QuoteInput from "./components/QuoteInput/QuoteInput";
 import Conversation from "./components/Conversation/Conversation";
 import QuoteResult from "./components/QuoteResult/QuoteResult";
 import WorkItems from "./components/WorkItems/WorkItems";
+import Materials from "./components/Materials/Materials";
 
 export default function Home() {
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [projectResponse, setProjectResponse] = useState<ProjectResponse | null>(null);
+  const [project, setProject] = useState<ProjectDraft>({
+    workItems: [],
+    materials: [],
+  });
 
   async function createQuote() {
     const userMessage: Message = {
@@ -31,13 +36,78 @@ export default function Home() {
       },
       body: JSON.stringify({
         messages: updatedMessages,
-        workItems: projectResponse?.workItems ?? [],
+        workItems: project?.workItems ?? [],
+        materials: project?.materials ?? [],
       }),
     });
 
-    const generatedResponse: ProjectResponse = await response.json();
+    const data: unknown = await response.json();
 
+    if (!response.ok) {
+      console.error("API error:", data);
+      return;
+    }
+
+    const parsedResponse = ProjectResponseSchema.safeParse(data);
+
+    if (!parsedResponse.success) {
+      console.error(
+        "Invalid ProjectResponse:",
+        parsedResponse.error,
+        data
+      );
+      return;
+    }
+
+    const generatedResponse = parsedResponse.data;
     setProjectResponse(generatedResponse);
+
+    setProject((currentProject) => {
+      const generatedWorkItems = generatedResponse.workItems ?? [];
+      const generatedMaterials = generatedResponse.materials ?? [];
+
+      const workItems = generatedWorkItems.map((newItem) => {
+        const existingItem = currentProject.workItems.find(
+          (item) => item.id === newItem.id
+        );
+
+        if (
+          existingItem &&
+          existingItem.status !== "suggested"
+        ) {
+          return {
+            ...newItem,
+            status: existingItem.status,
+          };
+        }
+
+        return newItem;
+      });
+
+      const materials = generatedMaterials.map((newMaterial) => {
+        const existingMaterial = currentProject.materials.find(
+          (material) => material.id === newMaterial.id
+        );
+
+        if (
+          existingMaterial &&
+          existingMaterial.status !== "suggested"
+        ) {
+          return {
+            ...newMaterial,
+            status: existingMaterial.status,
+          };
+        }
+
+        return newMaterial;
+      });
+
+      return {
+        ...currentProject,
+        workItems,
+        materials,
+      };
+    });
 
     if (!generatedResponse.complete) {
       const assistantMessage: Message = {
@@ -60,24 +130,43 @@ export default function Home() {
     workItem: WorkItem,
     accepted: boolean
   ) {
-    if (!projectResponse) {
-      return;
-    }
+    const updatedWorkItems: WorkItem[] =
+      project.workItems.map((item) => {
+        if (item.id !== workItem.id) {
+          return item;
+        }
 
-    const updatedWorkItems: WorkItem[] = projectResponse.workItems.map((item) => {
-      if (item !== workItem) {
-        return item;
-      }
+        return {
+          ...item,
+          status: accepted ? "accepted" : "rejected",
+        };
+      });
 
-      return {
-        ...item,
-        status: accepted ? "accepted" : "rejected",
-      };
-    });
-
-    setProjectResponse({
-      ...projectResponse,
+    setProject({
+      ...project,
       workItems: updatedWorkItems,
+    });
+  }
+
+  function handleMaterialChange(
+    material: Material,
+    accepted: boolean
+  ) {
+    const updatedMaterials: Material[] =
+      project.materials.map((item) => {
+        if (item.id !== material.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          status: accepted ? "accepted" : "rejected",
+        };
+      });
+
+    setProject({
+      ...project,
+      materials: updatedMaterials,
     });
   }
 
@@ -110,10 +199,17 @@ export default function Home() {
 
               <div className={styles.suggestions}>
                 {projectResponse && (
-                  <WorkItems
-                    workItems={projectResponse.workItems}
-                    onWorkItemChange={handleWorkItemChange}
-                  />
+                  <>
+                    <WorkItems
+                      workItems={project.workItems}
+                      onWorkItemChange={handleWorkItemChange}
+                    />
+
+                    <Materials
+                      materials={project.materials}
+                      onMaterialChange={handleMaterialChange}
+                    />
+                  </>
                 )}
               </div>
             </div>
