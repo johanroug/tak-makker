@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { QuoteResponse, WorkItem } from "@/schemas/quote";
+import type { ProjectResponse, WorkItem } from "@/schemas/project";
 import type { Message } from "@/types/message";
 import styles from "./page.module.scss";
 import QuoteInput from "./components/QuoteInput/QuoteInput";
@@ -12,7 +12,7 @@ import WorkItems from "./components/WorkItems/WorkItems";
 export default function Home() {
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [quoteResponse, setQuoteResponse] = useState<QuoteResponse | null>(null);
+  const [projectResponse, setProjectResponse] = useState<ProjectResponse | null>(null);
 
   async function createQuote() {
     const userMessage: Message = {
@@ -31,13 +31,13 @@ export default function Home() {
       },
       body: JSON.stringify({
         messages: updatedMessages,
-        workItems: quoteResponse?.workItems ?? [],
+        workItems: projectResponse?.workItems ?? [],
       }),
     });
 
-    const generatedResponse: QuoteResponse = await response.json();
+    const generatedResponse: ProjectResponse = await response.json();
 
-    setQuoteResponse(generatedResponse);
+    setProjectResponse(generatedResponse);
 
     if (!generatedResponse.complete) {
       const assistantMessage: Message = {
@@ -60,11 +60,11 @@ export default function Home() {
     workItem: WorkItem,
     accepted: boolean
   ) {
-    if (!quoteResponse) {
+    if (!projectResponse) {
       return;
     }
 
-    const updatedWorkItems: WorkItem[] = quoteResponse.workItems.map((item) => {
+    const updatedWorkItems: WorkItem[] = projectResponse.workItems.map((item) => {
       if (item !== workItem) {
         return item;
       }
@@ -75,8 +75,8 @@ export default function Home() {
       };
     });
 
-    setQuoteResponse({
-      ...quoteResponse,
+    setProjectResponse({
+      ...projectResponse,
       workItems: updatedWorkItems,
     });
   }
@@ -101,14 +101,22 @@ export default function Home() {
           </section>
 
           <section className={styles.conversationColumn}>
-            <Conversation messages={messages} />
-            {quoteResponse && (
-              <WorkItems
-                workItems={quoteResponse.workItems}
-                onWorkItemChange={handleWorkItemChange}
-              />
-            )}
-            <QuoteResult quoteResponse={quoteResponse} />
+            <div className={styles.conversationContent}>
+              <div className={styles.conversationScroll}>
+                <Conversation messages={messages} />
+
+                <QuoteResult projectResponse={projectResponse} />
+              </div>
+
+              <div className={styles.suggestions}>
+                {projectResponse && (
+                  <WorkItems
+                    workItems={projectResponse.workItems}
+                    onWorkItemChange={handleWorkItemChange}
+                  />
+                )}
+              </div>
+            </div>
           </section>
         </div>
       </div>

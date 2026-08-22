@@ -35,7 +35,7 @@ export const QuoteSchema = z.object({
 });
 export type Quote = z.infer<typeof QuoteSchema>;
 
-export const QuoteResponseSchema = z.object({
+export const ProjectResponseSchema = z.object({
   complete: z.boolean(),
 
   questions: z.array(z.string()).max(3),
@@ -46,4 +46,4 @@ export const QuoteResponseSchema = z.object({
 
   quote: QuoteSchema.nullable(),
 });
-export type QuoteResponse = z.infer<typeof QuoteResponseSchema>;
+export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;

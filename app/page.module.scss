@@ -34,6 +34,52 @@
   align-items: start;
 }
 
+.conversationStarted {
+  .workspace {
+    grid-template-columns:
+      minmax(0, 0.8fr)
+      minmax(0, 1.2fr);
+  }
+}
+
+.conversationColumn {
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+
+  transition:
+    opacity 400ms ease,
+    transform 400ms ease;
+}
+
+.conversationStarted {
+  .conversationColumn {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+}
+
+.conversationContent {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 20px;
+
+  height: calc(100vh - 180px);
+  min-height: 500px;
+}
+
+.conversationScroll {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.suggestions {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
 .inputColumn {
   width: 100%;
   max-width: 760px;

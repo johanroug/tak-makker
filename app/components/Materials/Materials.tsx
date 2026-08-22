@@ -1,4 +1,4 @@
-import type { Material } from "@/schemas/quote";
+import type { Material } from "@/schemas/project";
 import styles from "./Materials.module.scss";
 
 type MaterialsProps = {

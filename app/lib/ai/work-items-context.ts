@@ -1,4 +1,4 @@
-import type { WorkItem } from "@/schemas/quote";
+import type { WorkItem } from "@/schemas/project";
 
 export function createWorkItemsContext(workItems: WorkItem[]) {
   return `

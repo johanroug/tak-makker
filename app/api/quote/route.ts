@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
-import { QuoteResponseSchema } from "@/schemas/quote";
+import { ProjectResponseSchema } from "@/schemas/project";
 import { aiInstructions } from "../../lib/ai/instructions";
 import { createWorkItemsContext } from "@/app/lib/ai/work-items-context";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     text: {
       format: zodTextFormat(
-        QuoteResponseSchema,
+        ProjectResponseSchema,
         "quote_response"
       ),
     },
