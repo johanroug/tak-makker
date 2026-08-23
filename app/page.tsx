@@ -170,6 +170,32 @@ export default function Home() {
     });
   }
 
+  function handleEstimatedHoursChange(
+    workItem: WorkItem,
+    hours: number
+  ) {
+    // NYT: opdater den valgte arbejdsopgave
+    const updatedWorkItems: WorkItem[] =
+      project.workItems.map((item) => {
+        if (item.id !== workItem.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          estimatedHours: hours,
+
+          // NYT: brugerens ændring skal beskyttes mod AI senere
+          estimatedHoursSource: "user",
+        };
+      });
+
+    setProject({
+      ...project,
+      workItems: updatedWorkItems,
+    });
+  }
+
   return (
     <main className={styles.page}>
       Jeg skal totalrenovere et badeværelse
@@ -204,6 +230,7 @@ export default function Home() {
                     <WorkItems
                       workItems={project.workItems}
                       onWorkItemChange={handleWorkItemChange}
+                      onEstimatedHoursChange={handleEstimatedHoursChange}
                     />
 
                     <Materials

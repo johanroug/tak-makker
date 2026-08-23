@@ -6,6 +6,7 @@ export const WorkItemSchema = z.object({
   description: z.string(),
   status: z.enum(["suggested", "accepted", "rejected"]),
   estimatedHours: z.number().nullable(),
+  estimatedHoursSource: z.enum(["ai", "user"]),
 });
 export type WorkItem = z.infer<typeof WorkItemSchema>;
 

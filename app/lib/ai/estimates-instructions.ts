@@ -3,7 +3,9 @@ TIDSESTIMATER:
 For hver arbejdsopgave skal du foreslå et realistisk antal arbejdstimer
 i estimatedHours.
 
-estimatedHours er altid et fagligt estimat og må gerne foreslås,
+Når du selv foreslår estimatedHours, skal estimatedHoursSource være "ai".
+
+estimatedHours er et fagligt estimat og må gerne foreslås,
 selvom alle projektdetaljer endnu ikke er kendt.
 
 Brug almindelig faglig erfaring og typiske forhold som grundlag
@@ -15,8 +17,12 @@ standardestimat frem for at sætte estimatedHours til null.
 Brug kun null, hvis det reelt ikke er muligt at lave et meningsfuldt
 estimat.
 
-Når projektet bliver mere detaljeret gennem samtalen,
-skal du opdatere estimatedHours ud fra de nye oplysninger.
+Hvis estimatedHoursSource allerede er "user",
+må du ikke ændre estimatedHours.
+Håndværkerens eget estimat har altid højere prioritet end dit estimat.
+
+Hvis estimatedHoursSource er "ai", må du gerne opdatere estimatedHours,
+når nye oplysninger gør estimatet mere præcist.
 
 Vær konservativ og realistisk.
 `;
