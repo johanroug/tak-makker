@@ -3,6 +3,7 @@ import type { Material, ProjectDraft, ProjectResponse, WorkItem } from "@/schema
 
 export function useProject() {
   const [project, setProject] = useState<ProjectDraft>({
+    hourlyRate: null,
     workItems: [],
     materials: [],
   });
@@ -111,11 +112,21 @@ export function useProject() {
     });
   }
 
+  function handleHourlyRateChange(hourlyRate: number) {
+    setProject((currentProject) => {
+      return {
+        ...currentProject,
+        hourlyRate,
+      };
+    });
+  }
+
   return {
     project,
     handleWorkItemChange,
     handleMaterialChange,
     handleEstimatedHoursChange,
+    handleHourlyRateChange,
     mergeProjectResponse,
   };
 }

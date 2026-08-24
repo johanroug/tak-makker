@@ -53,6 +53,7 @@ export const ProjectResponseSchema = z.object({
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 
 export const ProjectDraftSchema = z.object({
+  hourlyRate: z.number().nullable(),
   workItems: z.array(WorkItemSchema),
   materials: z.array(MaterialSchema),
 });
