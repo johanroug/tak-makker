@@ -63,43 +63,61 @@ export default function Home() {
     setProjectResponse(generatedResponse);
 
     setProject((currentProject) => {
-      const generatedWorkItems = generatedResponse.workItems ?? [];
-      const generatedMaterials = generatedResponse.materials ?? [];
-
-      const workItems = generatedWorkItems.map((newItem) => {
+      const workItems = generatedResponse.workItems.map((newItem) => {
         const existingItem = currentProject.workItems.find(
           (item) => item.id === newItem.id
         );
 
-        if (
-          existingItem &&
-          existingItem.status !== "suggested"
-        ) {
-          return {
-            ...newItem,
-            status: existingItem.status,
-          };
+        if (!existingItem) {
+          return newItem;
         }
 
-        return newItem;
+        return {
+          ...newItem,
+
+          // ÆNDRET:
+          // Brugerens accepted/rejected-status vinder over AI'ens status.
+          status:
+            existingItem.status !== "suggested"
+              ? existingItem.status
+              : newItem.status,
+
+          // NYT:
+          // Hvis håndværkeren selv har rettet timerne,
+          // beholder vi håndværkerens værdi.
+          estimatedHours:
+            existingItem.estimatedHoursSource === "user"
+              ? existingItem.estimatedHours
+              : newItem.estimatedHours,
+
+          // NYT:
+          // Vi skal også bevare informationen om,
+          // at timerne kommer fra håndværkeren.
+          estimatedHoursSource:
+            existingItem.estimatedHoursSource === "user"
+              ? "user"
+              : newItem.estimatedHoursSource,
+        };
       });
 
-      const materials = generatedMaterials.map((newMaterial) => {
+      const materials = generatedResponse.materials.map((newMaterial) => {
         const existingMaterial = currentProject.materials.find(
           (material) => material.id === newMaterial.id
         );
 
-        if (
-          existingMaterial &&
-          existingMaterial.status !== "suggested"
-        ) {
-          return {
-            ...newMaterial,
-            status: existingMaterial.status,
-          };
+        if (!existingMaterial) {
+          return newMaterial;
         }
 
-        return newMaterial;
+        return {
+          ...newMaterial,
+
+          // Brugerens accepted/rejected-status vinder.
+          status:
+            existingMaterial.status !== "suggested"
+              ? existingMaterial.status
+              : newMaterial.status,
+        };
       });
 
       return {
