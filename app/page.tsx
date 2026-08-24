@@ -10,6 +10,7 @@ import Materials from "./components/Materials/Materials";
 import QuoteResult from "./components/QuoteResult/QuoteResult";
 import styles from "./page.module.scss";
 import { createQuoteRequest } from "../lib/ai/createQuote";
+import HourlyRate from "./components/HourlyRate/HourlyRate";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -25,7 +26,6 @@ export default function Home() {
     };
 
     const updatedMessages = [...messages, userMessage];
-
     setMessages(updatedMessages);
 
     try {
@@ -33,10 +33,9 @@ export default function Home() {
         messages: updatedMessages,
         project: projectManagerHook.project,
       });
-
       setProjectResponse(generatedResponse);
 
-      useProject().mergeProjectResponse(generatedResponse);
+      projectManagerHook.mergeProjectResponse(generatedResponse);
 
       if (!generatedResponse.complete) {
         const assistantMessage: Message = {
@@ -98,6 +97,11 @@ export default function Home() {
                 <Materials
                   materials={projectManagerHook.project.materials}
                   onMaterialChange={projectManagerHook.handleMaterialChange}
+                />
+
+                <HourlyRate
+                  hourlyRate={projectManagerHook.project.hourlyRate}
+                  onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
                 />
               </div>
             </div>
