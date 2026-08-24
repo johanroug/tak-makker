@@ -1,23 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { ProjectResponseSchema, type Material, type ProjectDraft, type ProjectResponse, type WorkItem } from "@/schemas/project";
+import { type ProjectResponse } from "@/schemas/project";
 import type { Message } from "@/types/message";
-import styles from "./page.module.scss";
-import QuoteInput from "./components/QuoteInput/QuoteInput";
+import { useProject } from "@/hooks/useProject";
 import Conversation from "./components/Conversation/Conversation";
-import QuoteResult from "./components/QuoteResult/QuoteResult";
 import WorkItems from "./components/WorkItems/WorkItems";
 import Materials from "./components/Materials/Materials";
+import QuoteResult from "./components/QuoteResult/QuoteResult";
+import styles from "./page.module.scss";
+import { createQuoteRequest } from "./lib/ai/createQuote";
 
 export default function Home() {
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [projectResponse, setProjectResponse] = useState<ProjectResponse | null>(null);
-  const [project, setProject] = useState<ProjectDraft>({
-    workItems: [],
-    materials: [],
-  });
+
+  const projectManagerHook = useProject();
 
   async function createQuote() {
     const userMessage: Message = {
@@ -29,209 +28,56 @@ export default function Home() {
 
     setMessages(updatedMessages);
 
-    const response = await fetch("/api/quote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    try {
+      const generatedResponse = await createQuoteRequest({
         messages: updatedMessages,
-        workItems: project?.workItems ?? [],
-        materials: project?.materials ?? [],
-      }),
-    });
-
-    const data: unknown = await response.json();
-
-    if (!response.ok) {
-      console.error("API error:", data);
-      return;
-    }
-
-    const parsedResponse = ProjectResponseSchema.safeParse(data);
-
-    if (!parsedResponse.success) {
-      console.error(
-        "Invalid ProjectResponse:",
-        parsedResponse.error,
-        data
-      );
-      return;
-    }
-
-    const generatedResponse = parsedResponse.data;
-    setProjectResponse(generatedResponse);
-
-    setProject((currentProject) => {
-      const workItems = generatedResponse.workItems.map((newItem) => {
-        const existingItem = currentProject.workItems.find(
-          (item) => item.id === newItem.id
-        );
-
-        if (!existingItem) {
-          return newItem;
-        }
-
-        return {
-          ...newItem,
-
-          // ÆNDRET:
-          // Brugerens accepted/rejected-status vinder over AI'ens status.
-          status:
-            existingItem.status !== "suggested"
-              ? existingItem.status
-              : newItem.status,
-
-          // NYT:
-          // Hvis håndværkeren selv har rettet timerne,
-          // beholder vi håndværkerens værdi.
-          estimatedHours:
-            existingItem.estimatedHoursSource === "user"
-              ? existingItem.estimatedHours
-              : newItem.estimatedHours,
-
-          // NYT:
-          // Vi skal også bevare informationen om,
-          // at timerne kommer fra håndværkeren.
-          estimatedHoursSource:
-            existingItem.estimatedHoursSource === "user"
-              ? "user"
-              : newItem.estimatedHoursSource,
-        };
+        project: projectManagerHook.project,
       });
 
-      const materials = generatedResponse.materials.map((newMaterial) => {
-        const existingMaterial = currentProject.materials.find(
-          (material) => material.id === newMaterial.id
-        );
+      setProjectResponse(generatedResponse);
 
-        if (!existingMaterial) {
-          return newMaterial;
-        }
+      useProject().mergeProjectResponse(generatedResponse);
 
-        return {
-          ...newMaterial,
-
-          // Brugerens accepted/rejected-status vinder.
-          status:
-            existingMaterial.status !== "suggested"
-              ? existingMaterial.status
-              : newMaterial.status,
+      if (!generatedResponse.complete) {
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: generatedResponse.questions.join("\n"),
         };
-      });
 
-      return {
-        ...currentProject,
-        workItems,
-        materials,
-      };
-    });
+        setMessages([...updatedMessages, assistantMessage]);
+      }
 
-    if (!generatedResponse.complete) {
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: generatedResponse.questions.join("\n"),
-      };
-
-      setMessages([
-        ...updatedMessages,
-        assistantMessage,
-      ]);
+      setDescription("");
+    } catch (error) {
+      console.error("Could not create quote:", error);
     }
-
-    setDescription("");
   }
 
   const conversationStarted = messages.length > 0;
 
-  function handleWorkItemChange(
-    workItem: WorkItem,
-    accepted: boolean
-  ) {
-    const updatedWorkItems: WorkItem[] =
-      project.workItems.map((item) => {
-        if (item.id !== workItem.id) {
-          return item;
-        }
-
-        return {
-          ...item,
-          status: accepted ? "accepted" : "rejected",
-        };
-      });
-
-    setProject({
-      ...project,
-      workItems: updatedWorkItems,
-    });
-  }
-
-  function handleMaterialChange(
-    material: Material,
-    accepted: boolean
-  ) {
-    const updatedMaterials: Material[] =
-      project.materials.map((item) => {
-        if (item.id !== material.id) {
-          return item;
-        }
-
-        return {
-          ...item,
-          status: accepted ? "accepted" : "rejected",
-        };
-      });
-
-    setProject({
-      ...project,
-      materials: updatedMaterials,
-    });
-  }
-
-  function handleEstimatedHoursChange(
-    workItem: WorkItem,
-    hours: number
-  ) {
-    // NYT: opdater den valgte arbejdsopgave
-    const updatedWorkItems: WorkItem[] =
-      project.workItems.map((item) => {
-        if (item.id !== workItem.id) {
-          return item;
-        }
-
-        return {
-          ...item,
-          estimatedHours: hours,
-
-          // NYT: brugerens ændring skal beskyttes mod AI senere
-          estimatedHoursSource: "user",
-        };
-      });
-
-    setProject({
-      ...project,
-      workItems: updatedWorkItems,
-    });
-  }
-
   return (
-    <main className={styles.page}>
-      Jeg skal totalrenovere et badeværelse
-      <div
-        className={`${styles.container} ${conversationStarted ? styles.conversationStarted : ""
-          }`}
-      >
+    <main className={`${styles.page} ${conversationStarted ? styles.conversationStarted : ""}`}>
+      <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.title}>Tak Makker</h1>
 
-          <p className={styles.subtitle}>
-            Din digitale makker på jobbet.
-          </p>
+          <p className={styles.subtitle}>Din digitale makker på jobbet.</p>
         </header>
 
         <div className={styles.workspace}>
           <section className={styles.inputColumn}>
-            <QuoteInput description={description} onDescriptionChange={setDescription} onSubmit={createQuote} />
+            <div className={styles.inputCard}>
+              <textarea
+                className={styles.textarea}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Fortæl hvad du skal lave..."
+              />
+
+              <button className={styles.button} onClick={createQuote}>
+                Lav tilbud
+              </button>
+            </div>
           </section>
 
           <section className={styles.conversationColumn}>
@@ -243,20 +89,16 @@ export default function Home() {
               </div>
 
               <div className={styles.suggestions}>
-                {projectResponse && (
-                  <>
-                    <WorkItems
-                      workItems={project.workItems}
-                      onWorkItemChange={handleWorkItemChange}
-                      onEstimatedHoursChange={handleEstimatedHoursChange}
-                    />
+                <WorkItems
+                  workItems={projectManagerHook.project.workItems}
+                  onWorkItemChange={projectManagerHook.handleWorkItemChange}
+                  onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
+                />
 
-                    <Materials
-                      materials={project.materials}
-                      onMaterialChange={handleMaterialChange}
-                    />
-                  </>
-                )}
+                <Materials
+                  materials={projectManagerHook.project.materials}
+                  onMaterialChange={projectManagerHook.handleMaterialChange}
+                />
               </div>
             </div>
           </section>
