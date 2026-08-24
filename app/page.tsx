@@ -9,7 +9,7 @@ import WorkItems from "./components/WorkItems/WorkItems";
 import Materials from "./components/Materials/Materials";
 import QuoteResult from "./components/QuoteResult/QuoteResult";
 import styles from "./page.module.scss";
-import { createQuoteRequest } from "./lib/ai/createQuote";
+import { createQuoteRequest } from "../lib/ai/createQuote";
 
 export default function Home() {
   const [description, setDescription] = useState("");

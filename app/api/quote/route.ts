@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { ProjectResponseSchema } from "@/schemas/project";
-import { aiInstructions } from "../../lib/ai/instructions";
-import { createWorkItemsContext } from "@/app/lib/ai/work-items-context";
-import { createMaterialsContext } from "@/app/lib/ai/materials-context";
+import { aiInstructions } from "../../../lib/ai/instructions";
+import { createWorkItemsContext } from "@/lib/ai/work-items-context";
+import { createMaterialsContext } from "@/lib/ai/materials-context";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
