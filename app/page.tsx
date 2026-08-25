@@ -15,7 +15,6 @@ import QuoteInput from "./components/QuoteInput/QuoteInput";
 export default function Home() {
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [projectResponse, setProjectResponse] = useState<ProjectResponse | null>(null);
   const [activeTab, setActiveTab] = useState<
     "conversation" | "workItems" | "materials" | "calculation"
   >("conversation");
@@ -29,6 +28,7 @@ export default function Home() {
     };
 
     const updatedMessages = [...messages, userMessage];
+
     setMessages(updatedMessages);
 
     try {
@@ -36,7 +36,6 @@ export default function Home() {
         messages: updatedMessages,
         project: projectManagerHook.project,
       });
-      setProjectResponse(generatedResponse);
 
       projectManagerHook.mergeProjectResponse(generatedResponse);
 
