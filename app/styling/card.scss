@@ -1,0 +1,23 @@
+.card {
+  padding: 20px 16px;
+  background: white;
+  border-radius: 14px;
+  display: flex;
+  cursor: pointer;
+  align-items: start;
+  gap: 3.5;
+
+  &-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &-title {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+}

@@ -1,0 +1,25 @@
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: #fff;
+  border: 1px solid #b8b8b8;
+  border-radius: 8px;
+  padding: 10px 12px;
+
+  &:hover {
+    border-color: #777;
+  }
+
+  &:focus {
+    outline: 2px solid #222;
+    outline-offset: 1px;
+    border-color: transparent;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

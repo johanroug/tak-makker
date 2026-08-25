@@ -140,3 +140,31 @@
     }
   }
 }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #d8d8d8;
+
+  button {
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    color: #666;
+  }
+}
+
+.activeTab {
+  color: #111 !important;
+  border-bottom-color: #111 !important;
+  font-weight: 600;
+}
+
+.tabContent {
+  min-height: 0;
+  overflow-y: auto;
+}

@@ -1,43 +1,33 @@
 import type { Material } from "@/schemas/project";
-import styles from "./Materials.module.scss";
 
 type MaterialsProps = {
   materials: Material[];
-  onMaterialChange: (
-    material: Material,
-    accepted: boolean
-  ) => void;
+  onMaterialChange: (material: Material, accepted: boolean) => void;
 };
 
-export default function Materials({
-  materials,
-  onMaterialChange,
-}: MaterialsProps) {
+export default function Materials({ materials, onMaterialChange }: MaterialsProps) {
   if (materials.length === 0) {
     return null;
   }
 
   return (
-    <section className={styles.container}>
-      <h2>Foreslåede materialer</h2>
+    <section className="mt-6">
+      <h2 className="section-heading">Foreslåede materialer</h2>
 
-      <div className={styles.items}>
-        {materials.map((material, index) => (
-          <label className={styles.item} key={index}>
+      <div className="card-stack">
+        {materials.map((material) => (
+          <label className="card card-row cursor-pointer" key={material.id}>
             <input
+              className="mt-[3px]"
               type="checkbox"
               checked={material.status === "accepted"}
-              onChange={(event) =>
-                onMaterialChange(
-                  material,
-                  event.target.checked
-                )
-              }
+              onChange={(event) => onMaterialChange(material, event.target.checked)}
             />
 
-            <div>
-              <strong>{material.name}</strong>
-              <p>{material.description}</p>
+            <div className="min-w-0 flex-1">
+              <strong className="card-title">{material.name}</strong>
+
+              <p className="mt-1.5 leading-6">{material.description}</p>
             </div>
           </label>
         ))}

@@ -5,27 +5,19 @@ type ConversationProps = {
   messages: Message[];
 };
 
-export default function Conversation({
-  messages,
-}: ConversationProps) {
+export default function Conversation({ messages }: ConversationProps) {
   return (
-    <div className={styles.messages}>
+    <div className="card-stack">
       {messages.toReversed().map((message, index) => (
         <div
           key={index}
-          className={
-            message.role === "user"
-              ? styles.userMessage
-              : styles.assistantMessage
-          }
+          className={`card max-w-[85%] ${
+            message.role === "user" ? "self-end " + styles.userMessage : "self-start"
+          }`}
         >
-          <strong>
-            {message.role === "user" ? "Dig" : "Tak Makker"}:
-          </strong>
+          <strong className="card-title">{message.role === "user" ? "Dig" : "Tak Makker"}</strong>
 
-          <p className={styles.messageText}>
-            {message.content}
-          </p>
+          <p className={styles.messageText}>{message.content}</p>
         </div>
       ))}
     </div>

@@ -1,4 +1,7 @@
-@import "tailwindcss";
+@use "tailwindcss";
+@use "input";
+@use "card";
+@use "heading";
 
 :root {
   --background: #ffffff;

@@ -1,12 +1,9 @@
 import type { WorkItem } from "@/schemas/project";
-import styles from "./WorkItems.module.scss";
 
 type WorkItemsProps = {
   workItems: WorkItem[];
   hourlyRate: number | null;
-
   onWorkItemChange: (workItem: WorkItem, accepted: boolean) => void;
-
   onEstimatedHoursChange: (workItem: WorkItem, hours: number) => void;
 };
 
@@ -20,8 +17,6 @@ export default function WorkItems({
     return null;
   }
 
-  // NYT:
-  // Samlet arbejdsløn for accepterede arbejdsopgaver.
   const totalLaborPrice =
     hourlyRate === null
       ? null
@@ -32,10 +27,10 @@ export default function WorkItems({
           }, 0);
 
   return (
-    <section className={styles.container}>
-      <h2>Foreslåede arbejdsopgaver</h2>
+    <section className="mt-6">
+      <h2 className="section-heading">Foreslåede arbejdsopgaver</h2>
 
-      <div className={styles.items}>
+      <div className="card-stack">
         {workItems.map((item) => {
           const laborPrice =
             item.estimatedHours !== null && hourlyRate !== null
@@ -43,48 +38,60 @@ export default function WorkItems({
               : null;
 
           return (
-            <div className={styles.item} key={item.id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={item.status === "accepted"}
-                  onChange={(event) => onWorkItemChange(item, event.target.checked)}
-                />
+            <label className="card card-row cursor-pointer" key={item.id}>
+              <input
+                className="mt-[3px]"
+                type="checkbox"
+                checked={item.status === "accepted"}
+                onChange={(event) => onWorkItemChange(item, event.target.checked)}
+              />
 
-                <strong className={styles.trade}>{item.trade}</strong>
-              </label>
+              <div className="min-w-0 flex-1">
+                <strong className="card-title">
+                  {item.trade}
+                </strong>
 
-              <p>{item.description}</p>
+                <p className="mb-4 mt-0 leading-6">{item.description}</p>
 
-              <label>
-                Estimeret tid:
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={item.estimatedHours ?? ""}
-                  onChange={(event) => onEstimatedHoursChange(item, Number(event.target.value))}
-                />
-                timer
-              </label>
+                <div className="mb-2.5 flex items-center gap-2 text-sm text-neutral-600">
+                  <span>Estimeret tid</span>
 
-              {item.estimatedHoursSource === "ai" && <small>Foreslået af Tak Makker</small>}
+                  <input
+                    className="w-[90px]"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={item.estimatedHours ?? ""}
+                    onClick={(event) => event.stopPropagation()}
+                    onChange={(event) => onEstimatedHoursChange(item, Number(event.target.value))}
+                  />
 
-              {item.estimatedHoursSource === "user" && <small>Rettet af dig</small>}
+                  <span>timer</span>
+                </div>
 
-              {laborPrice !== null && (
-                <p className={styles.price}>Arbejdsløn: {laborPrice.toLocaleString("da-DK")} kr.</p>
-              )}
-            </div>
+                {laborPrice !== null && (
+                  <div className="mb-2 flex gap-2">
+                    <span>Arbejdsløn</span>
+                    <strong>{laborPrice.toLocaleString("da-DK")} kr.</strong>
+                  </div>
+                )}
+
+                {item.estimatedHoursSource === "ai" && (
+                  <small className="block text-neutral-500">Foreslået af Tak Makker</small>
+                )}
+
+                {item.estimatedHoursSource === "user" && (
+                  <small className="block text-neutral-500">Rettet af dig</small>
+                )}
+              </div>
+            </label>
           );
         })}
       </div>
 
-      {/* NYT */}
       {totalLaborPrice !== null && (
-        <div className={styles.total}>
+        <div className="card mt-4 flex justify-between gap-4 text-lg">
           <strong>Samlet arbejdsløn</strong>
-
           <span>{totalLaborPrice.toLocaleString("da-DK")} kr.</span>
         </div>
       )}

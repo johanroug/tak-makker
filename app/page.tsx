@@ -16,6 +16,9 @@ export default function Home() {
   const [description, setDescription] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [projectResponse, setProjectResponse] = useState<ProjectResponse | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "conversation" | "workItems" | "materials" | "calculation"
+  >("conversation");
 
   const projectManagerHook = useProject();
 
@@ -80,31 +83,66 @@ export default function Home() {
           </section>
 
           <section className={styles.conversationColumn}>
-            <div className={styles.conversationContent}>
-              <div className={styles.conversationScroll}>
-                <Conversation messages={messages} />
+            <div className={styles.tabs}>
+              <button
+                className={activeTab === "conversation" ? styles.activeTab : ""}
+                onClick={() => setActiveTab("conversation")}
+              >
+                Samtale
+              </button>
 
-                <QuoteResult projectResponse={projectResponse} />
-              </div>
+              <button
+                className={activeTab === "workItems" ? styles.activeTab : ""}
+                onClick={() => setActiveTab("workItems")}
+              >
+                Opgaver
+              </button>
 
-              <div className={styles.suggestions}>
+              <button
+                className={activeTab === "materials" ? styles.activeTab : ""}
+                onClick={() => setActiveTab("materials")}
+              >
+                Materialer
+              </button>
+
+              <button
+                className={activeTab === "calculation" ? styles.activeTab : ""}
+                onClick={() => setActiveTab("calculation")}
+              >
+                Kalkulation
+              </button>
+            </div>
+
+            <div className={styles.tabContent}>
+              {activeTab === "conversation" && (
+                <>
+                  <Conversation messages={messages} />
+                  <QuoteResult projectResponse={projectResponse} />
+                </>
+              )}
+
+              {activeTab === "workItems" && (
                 <WorkItems
                   workItems={projectManagerHook.project.workItems}
-                  hourlyRate={projectManagerHook.project.hourlyRate} // NYT
+                  hourlyRate={projectManagerHook.project.hourlyRate}
                   onWorkItemChange={projectManagerHook.handleWorkItemChange}
                   onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
                 />
+              )}
 
+              {activeTab === "materials" && (
                 <Materials
                   materials={projectManagerHook.project.materials}
                   onMaterialChange={projectManagerHook.handleMaterialChange}
                 />
+              )}
 
+              {activeTab === "calculation" && (
                 <HourlyRate
                   hourlyRate={projectManagerHook.project.hourlyRate}
                   onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
                 />
-              </div>
+              )}
             </div>
           </section>
         </div>
