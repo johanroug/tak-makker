@@ -7,7 +7,6 @@ import { useProject } from "@/hooks/useProject";
 import Conversation from "./components/Conversation/Conversation";
 import WorkItems from "./components/WorkItems/WorkItems";
 import Materials from "./components/Materials/Materials";
-import QuoteResult from "./components/QuoteResult/QuoteResult";
 import styles from "./page.module.scss";
 import { createQuoteRequest } from "../lib/ai/createQuote";
 import HourlyRate from "./components/HourlyRate/HourlyRate";
@@ -111,7 +110,6 @@ export default function Home() {
               {activeTab === "conversation" && (
                 <>
                   <Conversation messages={messages} />
-                  <QuoteResult projectResponse={projectResponse} />
                 </>
               )}
 
