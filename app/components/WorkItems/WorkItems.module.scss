@@ -37,3 +37,14 @@
   font-size: 14px;
   color: #666;
 }
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  font-size: 18px;
+}

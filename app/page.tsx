@@ -90,6 +90,7 @@ export default function Home() {
               <div className={styles.suggestions}>
                 <WorkItems
                   workItems={projectManagerHook.project.workItems}
+                  hourlyRate={projectManagerHook.project.hourlyRate} // NYT
                   onWorkItemChange={projectManagerHook.handleWorkItemChange}
                   onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
                 />
