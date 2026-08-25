@@ -1,5 +1,3 @@
-import styles from "./QuoteInput.module.scss";
-
 type QuoteInputProps = {
   description: string;
   onDescriptionChange: (value: string) => void;
@@ -12,20 +10,24 @@ export default function QuoteInput({
   onSubmit,
 }: QuoteInputProps) {
   return (
-    <div className={styles.inputCard}>
+    <div className="card w-full max-w-[480px]">
+      <label className="mb-2 block font-semibold" htmlFor="quote-description">
+        Hvad skal vi lave?
+      </label>
+
       <textarea
-        className={styles.textarea}
+        id="quote-description"
+        className="min-h-[160px] w-full resize-none"
         value={description}
-        onChange={(e) => onDescriptionChange(e.target.value)}
-        placeholder="Fortæl hvad du skal lave..."
+        onChange={(event) => onDescriptionChange(event.target.value)}
+        placeholder="Beskriv opgaven..."
       />
 
-      <button
-        className={styles.button}
-        onClick={onSubmit}
-      >
-        Lav tilbud
-      </button>
+      <div className="mt-4 flex justify-end">
+        <button className="primary-button" type="button" onClick={onSubmit}>
+          Lav tilbud
+        </button>
+      </div>
     </div>
   );
 }

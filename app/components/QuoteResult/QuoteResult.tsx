@@ -17,7 +17,7 @@ export default function QuoteResult({
   if (!projectResponse.complete) {
     return (
       <section className={styles.questions}>
-        <h2>Jeg mangler lige lidt, makker</h2>
+        <h2>Jeg mangler lige lidt, makker2</h2>
 
         {questions.map((question) => (
           <p key={question}>{question}</p>

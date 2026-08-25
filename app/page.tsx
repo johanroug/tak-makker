@@ -11,6 +11,7 @@ import QuoteResult from "./components/QuoteResult/QuoteResult";
 import styles from "./page.module.scss";
 import { createQuoteRequest } from "../lib/ai/createQuote";
 import HourlyRate from "./components/HourlyRate/HourlyRate";
+import QuoteInput from "./components/QuoteInput/QuoteInput";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -68,18 +69,11 @@ export default function Home() {
 
         <div className={styles.workspace}>
           <section className={styles.inputColumn}>
-            <div className={styles.inputCard}>
-              <textarea
-                className={styles.textarea}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="Fortæl hvad du skal lave..."
-              />
-
-              <button className={styles.button} onClick={createQuote}>
-                Lav tilbud
-              </button>
-            </div>
+            <QuoteInput
+              description={description}
+              onDescriptionChange={setDescription}
+              onSubmit={createQuote}
+            />
           </section>
 
           <section className={styles.conversationColumn}>
