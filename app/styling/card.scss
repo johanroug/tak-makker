@@ -2,10 +2,11 @@
   padding: 20px 16px;
   background: white;
   border-radius: 14px;
-  display: flex;
-  cursor: pointer;
-  align-items: start;
-  gap: 3.5;
+  &-row {
+    display: flex;
+    align-items: start;
+    gap: 3.5;
+  }
 
   &-stack {
     display: flex;
