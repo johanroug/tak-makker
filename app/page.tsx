@@ -130,6 +130,7 @@ export default function Home() {
 
               {activeTab === "calculation" && (
                 <Calculation
+                  workItems={projectManagerHook.project.workItems}
                   hourlyRate={projectManagerHook.project.hourlyRate}
                   totalLaborPrice={projectManagerHook.totalLaborPrice}
                   onHourlyRateChange={projectManagerHook.handleHourlyRateChange}

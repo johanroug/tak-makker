@@ -17,15 +17,6 @@ export default function WorkItems({
     return null;
   }
 
-  const totalLaborPrice =
-    hourlyRate === null
-      ? null
-      : workItems
-          .filter((item) => item.status === "accepted")
-          .reduce((total, item) => {
-            return total + (item.estimatedHours ?? 0) * hourlyRate;
-          }, 0);
-
   return (
     <section className="mt-6">
       <h2 className="section-heading">Foreslåede arbejdsopgaver</h2>
@@ -47,9 +38,7 @@ export default function WorkItems({
               />
 
               <div className="min-w-0 flex-1">
-                <strong className="card-title">
-                  {item.trade}
-                </strong>
+                <strong className="card-title">{item.trade}</strong>
 
                 <p className="mb-4 mt-0 leading-6">{item.description}</p>
 
@@ -88,13 +77,6 @@ export default function WorkItems({
           );
         })}
       </div>
-
-      {totalLaborPrice !== null && (
-        <div className="card mt-4 flex justify-between gap-4 text-lg">
-          <strong>Samlet arbejdsløn</strong>
-          <span>{totalLaborPrice.toLocaleString("da-DK")} kr.</span>
-        </div>
-      )}
     </section>
   );
 }
