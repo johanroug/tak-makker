@@ -8,6 +8,17 @@ export function useProject() {
     materials: [],
   });
 
+  const hourlyRate = project.hourlyRate;
+
+  const totalLaborPrice =
+    hourlyRate === null
+      ? null
+      : project.workItems
+          .filter((item) => item.status === "accepted")
+          .reduce((total, item) => {
+            return total + (item.estimatedHours ?? 0) * hourlyRate;
+          }, 0);
+
   function handleWorkItemChange(workItem: WorkItem, accepted: boolean) {
     const updatedWorkItems: WorkItem[] = project.workItems.map((item) => {
       if (item.id !== workItem.id) {
@@ -123,6 +134,7 @@ export function useProject() {
 
   return {
     project,
+    totalLaborPrice,
     handleWorkItemChange,
     handleMaterialChange,
     handleEstimatedHoursChange,

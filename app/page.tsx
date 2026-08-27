@@ -9,8 +9,8 @@ import WorkItems from "./components/WorkItems/WorkItems";
 import Materials from "./components/Materials/Materials";
 import styles from "./page.module.scss";
 import { createQuoteRequest } from "../lib/ai/createQuote";
-import HourlyRate from "./components/HourlyRate/HourlyRate";
 import QuoteInput from "./components/QuoteInput/QuoteInput";
+import Calculation from "./components/Calculation/Calculation";
 
 export default function Home() {
   const [description, setDescription] = useState("");
@@ -129,8 +129,9 @@ export default function Home() {
               )}
 
               {activeTab === "calculation" && (
-                <HourlyRate
+                <Calculation
                   hourlyRate={projectManagerHook.project.hourlyRate}
+                  totalLaborPrice={projectManagerHook.totalLaborPrice}
                   onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
                 />
               )}
