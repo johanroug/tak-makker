@@ -1,5 +1,6 @@
 import type { WorkItem } from "@/schemas/project";
 import HourlyRate from "../HourlyRate/HourlyRate";
+import OfferDetailsForm from "../OfferDetailsForm/OfferDetailsForm";
 
 type CalculationProps = {
   workItems: WorkItem[];
@@ -9,7 +10,16 @@ type CalculationProps = {
   subtotal: number | null;
   vatAmount: number | null;
   finalTotal: number | null;
+  customerName: string | null;
+  projectTitle: string | null;
+  projectDescription: string | null;
+  offerActionLabel: string;
+  validationMessage: string | null;
   onHourlyRateChange: (hourlyRate: number) => void;
+  onCustomerNameChange: (name: string) => void;
+  onProjectTitleChange: (title: string) => void;
+  onProjectDescriptionChange: (description: string) => void;
+  onCreateOffer: () => void;
 };
 
 function formatMoney(amount: number | null) {
@@ -24,7 +34,16 @@ export default function Calculation({
   subtotal,
   vatAmount,
   finalTotal,
+  customerName,
+  projectTitle,
+  projectDescription,
+  offerActionLabel,
+  validationMessage,
   onHourlyRateChange,
+  onCustomerNameChange,
+  onProjectTitleChange,
+  onProjectDescriptionChange,
+  onCreateOffer,
 }: CalculationProps) {
   const acceptedWorkItemsByTrade = Array.from(
     workItems
@@ -94,6 +113,25 @@ export default function Calculation({
 
           <strong>{formatMoney(finalTotal)}</strong>
         </div>
+
+        <OfferDetailsForm
+          customerName={customerName}
+          projectTitle={projectTitle}
+          projectDescription={projectDescription}
+          onCustomerNameChange={onCustomerNameChange}
+          onProjectTitleChange={onProjectTitleChange}
+          onProjectDescriptionChange={onProjectDescriptionChange}
+        />
+
+        {validationMessage && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+            {validationMessage}
+          </p>
+        )}
+
+        <button className="primary-button self-end" type="button" onClick={onCreateOffer}>
+          {offerActionLabel}
+        </button>
       </div>
     </section>
   );

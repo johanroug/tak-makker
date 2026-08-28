@@ -7,6 +7,16 @@ import {
 
 export function useProject() {
   const [project, setProject] = useState<ProjectDraft>({
+    customer: {
+      name: null,
+      nameSource: null,
+    },
+    project: {
+      title: null,
+      titleSource: null,
+      description: null,
+      descriptionSource: null,
+    },
     hourlyRate: null,
     workItems: [],
     materials: [],
@@ -140,8 +150,43 @@ export function useProject() {
     });
   }
 
+  function handleCustomerNameChange(name: string) {
+    setProject((currentProject) => ({
+      ...currentProject,
+      customer: {
+        name,
+        nameSource: "user",
+      },
+    }));
+  }
+
+  function handleProjectTitleChange(title: string) {
+    setProject((currentProject) => ({
+      ...currentProject,
+      project: {
+        ...currentProject.project,
+        title,
+        titleSource: "user",
+      },
+    }));
+  }
+
+  function handleProjectDescriptionChange(description: string) {
+    setProject((currentProject) => ({
+      ...currentProject,
+      project: {
+        ...currentProject.project,
+        description,
+        descriptionSource: "user",
+      },
+    }));
+  }
+
   function mergeProjectResponse(generatedResponse: ProjectResponse) {
     setProject((currentProject) => {
+      const customerName = generatedResponse.customer.name?.trim();
+      const projectTitle = generatedResponse.project.title?.trim();
+      const projectDescription = generatedResponse.project.description?.trim();
       const workItems = generatedResponse.workItems.map((newItem) => {
         const existingItem = currentProject.workItems.find((item) => item.id === newItem.id);
 
@@ -195,6 +240,40 @@ export function useProject() {
 
       return {
         ...currentProject,
+        customer: {
+          name:
+            currentProject.customer.nameSource === "user"
+              ? currentProject.customer.name
+              : customerName || currentProject.customer.name,
+          nameSource:
+            currentProject.customer.nameSource === "user"
+              ? "user"
+              : customerName
+                ? "ai"
+                : currentProject.customer.nameSource,
+        },
+        project: {
+          title:
+            currentProject.project.titleSource === "user"
+              ? currentProject.project.title
+              : projectTitle || currentProject.project.title,
+          titleSource:
+            currentProject.project.titleSource === "user"
+              ? "user"
+              : projectTitle
+                ? "ai"
+                : currentProject.project.titleSource,
+          description:
+            currentProject.project.descriptionSource === "user"
+              ? currentProject.project.description
+              : projectDescription || currentProject.project.description,
+          descriptionSource:
+            currentProject.project.descriptionSource === "user"
+              ? "user"
+              : projectDescription
+                ? "ai"
+                : currentProject.project.descriptionSource,
+        },
         workItems,
         materials,
       };
@@ -222,6 +301,9 @@ export function useProject() {
     handleMaterialChange,
     handleMaterialUnitPriceChange,
     handleMaterialQuantityChange,
+    handleCustomerNameChange,
+    handleProjectTitleChange,
+    handleProjectDescriptionChange,
     handleEstimatedHoursChange,
     handleHourlyRateChange,
     mergeProjectResponse,

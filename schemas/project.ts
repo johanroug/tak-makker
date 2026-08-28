@@ -22,6 +22,15 @@ export const MaterialSchema = z.object({
 });
 export type Material = z.infer<typeof MaterialSchema>;
 
+export const ProjectCustomerSchema = z.object({
+  name: z.string().nullable(),
+});
+
+export const ProjectDetailsSchema = z.object({
+  title: z.string().nullable(),
+  description: z.string().nullable(),
+});
+
 const AiMaterialSchema = MaterialSchema.extend({
   quantitySource: z.literal("ai").nullable(),
   unitPrice: z.null(),
@@ -51,6 +60,10 @@ export type Quote = z.infer<typeof QuoteSchema>;
 export const ProjectResponseSchema = z.object({
   complete: z.boolean(),
 
+  customer: ProjectCustomerSchema,
+
+  project: ProjectDetailsSchema,
+
   questions: z.array(z.string()).max(3),
 
   workItems: z.array(WorkItemSchema),
@@ -62,6 +75,13 @@ export const ProjectResponseSchema = z.object({
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 
 export const ProjectDraftSchema = z.object({
+  customer: ProjectCustomerSchema.extend({
+    nameSource: z.enum(["ai", "user"]).nullable(),
+  }),
+  project: ProjectDetailsSchema.extend({
+    titleSource: z.enum(["ai", "user"]).nullable(),
+    descriptionSource: z.enum(["ai", "user"]).nullable(),
+  }),
   hourlyRate: z.number().nullable(),
   workItems: z.array(WorkItemSchema),
   materials: z.array(MaterialSchema),

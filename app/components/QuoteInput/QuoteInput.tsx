@@ -1,11 +1,15 @@
 type QuoteInputProps = {
   description: string;
+  buttonLabel: string;
+  isLoading: boolean;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 };
 
 export default function QuoteInput({
   description,
+  buttonLabel,
+  isLoading,
   onDescriptionChange,
   onSubmit,
 }: QuoteInputProps) {
@@ -24,8 +28,20 @@ export default function QuoteInput({
       />
 
       <div className="mt-4 flex justify-end">
-        <button className="primary-button" type="button" onClick={onSubmit}>
-          Lav tilbud
+        <button
+          className="primary-button flex items-center gap-2"
+          type="button"
+          aria-busy={isLoading}
+          disabled={isLoading}
+          onClick={onSubmit}
+        >
+          {isLoading && (
+            <span
+              className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+              aria-hidden="true"
+            />
+          )}
+          <span aria-live="polite">{isLoading ? "Tak Makker tænker..." : buttonLabel}</span>
         </button>
       </div>
     </div>

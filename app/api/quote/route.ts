@@ -4,6 +4,7 @@ import { ProjectResponseSchema } from "@/schemas/project";
 import { aiInstructions } from "../../../lib/ai/instructions";
 import { createWorkItemsContext } from "@/lib/ai/work-items-context";
 import { createMaterialsContext } from "@/lib/ai/materials-context";
+import { createProjectDetailsContext } from "@/lib/ai/project-details-context";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -19,6 +20,13 @@ export async function POST(request: Request) {
         {
           role: "system",
           content: aiInstructions,
+        },
+        {
+          role: "system",
+          content: createProjectDetailsContext({
+            customer: body.customer ?? { name: null },
+            project: body.project ?? { title: null, description: null },
+          }),
         },
         {
           role: "system",

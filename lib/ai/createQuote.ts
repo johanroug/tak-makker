@@ -22,6 +22,8 @@ export async function createQuoteRequest({
     },
     body: JSON.stringify({
       messages,
+      customer: project.customer,
+      project: project.project,
       workItems: project.workItems,
       materials: project.materials,
     }),
