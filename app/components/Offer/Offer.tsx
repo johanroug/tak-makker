@@ -21,16 +21,12 @@ export default function Offer({ offer }: OfferProps) {
 
       <div className="card card-stack">
         <div>
-          <strong className="card-title">Kunde</strong>
-          <p>{offer.customer.name}</p>
+          <h3 className="text-lg font-semibold leading-7">{offer.project.title}</h3>
+          <p className="mt-1 text-sm text-neutral-600">{offer.customer.name}</p>
+          <p className="mt-3 leading-6">{offer.project.description}</p>
         </div>
 
-        <div>
-          <strong className="card-title">{offer.project.title}</strong>
-          <p className="leading-6">{offer.project.description}</p>
-        </div>
-
-        <div className="border-t border-neutral-200 pt-4">
+        <div className="mt-2 border-t border-neutral-200 pt-4">
           <h3 className="card-title mb-3">Arbejde</h3>
 
           <div className="card-stack">
@@ -83,25 +79,37 @@ export default function Offer({ offer }: OfferProps) {
         )}
 
         <div className="card-stack border-t border-neutral-200 pt-4">
-          <div className="flex justify-between gap-4">
-            <span>Arbejdsløn</span>
-            <strong>{formatMoney(offer.pricing.labor)}</strong>
+          <div className="space-y-3">
+            <div className="flex items-baseline justify-between gap-4">
+              <span>Arbejdsløn</span>
+              <strong className="shrink-0 whitespace-nowrap font-semibold">
+                {formatMoney(offer.pricing.labor)}
+              </strong>
+            </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <span>Materialer</span>
+              <strong className="shrink-0 whitespace-nowrap font-semibold">
+                {formatMoney(offer.pricing.materials)}
+              </strong>
+            </div>
           </div>
-          <div className="flex justify-between gap-4">
-            <span>Materialer</span>
-            <strong>{formatMoney(offer.pricing.materials)}</strong>
+          <div className="space-y-3 pt-2">
+            <div className="flex items-baseline justify-between gap-4">
+              <span>Subtotal</span>
+              <strong className="shrink-0 whitespace-nowrap font-semibold">
+                {formatMoney(offer.pricing.subtotal)}
+              </strong>
+            </div>
+            <div className="flex items-baseline justify-between gap-4">
+              <span>Moms ({offer.pricing.vatRate * 100} %)</span>
+              <strong className="shrink-0 whitespace-nowrap font-semibold">
+                {formatMoney(offer.pricing.vatAmount)}
+              </strong>
+            </div>
           </div>
-          <div className="flex justify-between gap-4">
-            <span>Subtotal</span>
-            <strong>{formatMoney(offer.pricing.subtotal)}</strong>
-          </div>
-          <div className="flex justify-between gap-4">
-            <span>Moms ({offer.pricing.vatRate * 100} %)</span>
-            <strong>{formatMoney(offer.pricing.vatAmount)}</strong>
-          </div>
-          <div className="flex justify-between gap-4 text-lg">
+          <div className="flex items-baseline justify-between gap-4 border-t border-neutral-200 pt-4 text-xl">
             <strong>Total inkl. moms</strong>
-            <strong>{formatMoney(offer.pricing.total)}</strong>
+            <strong className="shrink-0 whitespace-nowrap">{formatMoney(offer.pricing.total)}</strong>
           </div>
         </div>
       </div>
