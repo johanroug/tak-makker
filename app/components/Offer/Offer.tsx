@@ -6,6 +6,15 @@ type OfferProps = {
 };
 
 export default function Offer({ offer }: OfferProps) {
+  const workItemGroups = Array.from(
+    offer.workItems.reduce((groups, item) => {
+      const items = groups.get(item.trade) ?? [];
+      groups.set(item.trade, [...items, item]);
+      return groups;
+    }, new Map<string, OfferSnapshot["workItems"]>()),
+    ([trade, items]) => ({ trade, items }),
+  );
+
   return (
     <section className="mt-6">
       <h2 className="section-heading">Tilbud</h2>
@@ -25,16 +34,23 @@ export default function Offer({ offer }: OfferProps) {
           <h3 className="card-title mb-3">Arbejde</h3>
 
           <div className="card-stack">
-            {offer.workItems.map((item) => (
-              <div className="flex items-start justify-between gap-4" key={item.id}>
-                <div>
-                  <strong>{item.trade}</strong>
-                  <p className="mt-1 text-sm leading-5 text-neutral-600">{item.description}</p>
-                </div>
+            {workItemGroups.map((group) => (
+              <div key={group.trade}>
+                <strong>{group.trade}</strong>
 
-                <div className="shrink-0 text-right text-sm">
-                  <div>{item.estimatedHours.toLocaleString("da-DK")} timer</div>
-                  <strong>{formatMoney(item.totalPrice)}</strong>
+                <div className="card-stack mt-2">
+                  {group.items.map((item) => (
+                    <div className="flex items-start justify-between gap-4" key={item.id}>
+                      <div>
+                        <p className="text-sm leading-5 text-neutral-600">{item.description}</p>
+                      </div>
+
+                      <div className="shrink-0 text-right text-sm whitespace-nowrap">
+                        <div>{item.estimatedHours.toLocaleString("da-DK")} timer</div>
+                        <strong>{formatMoney(item.totalPrice)}</strong>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
