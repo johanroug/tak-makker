@@ -1,27 +1,29 @@
 import { OfferSchema, type Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
 
-type BuildOfferParams = {
+export type OfferCalculationValues = {
+  totalLaborPrice: number | null;
+  totalMaterialPrice: number;
+  subtotal: number | null;
+  vatAmount: number | null;
+  finalTotal: number | null;
+};
+
+type BuildOfferSnapshotParams = {
   id: string;
   customer: Offer["customer"];
   project: Offer["project"];
   projectDraft: ProjectDraft;
-  calculations: {
-    totalLaborPrice: number | null;
-    totalMaterialPrice: number;
-    subtotal: number | null;
-    vatAmount: number | null;
-    finalTotal: number | null;
-  };
+  calculations: OfferCalculationValues;
 };
 
-export function createOfferSnapshot({
+export function buildOfferSnapshot({
   id,
   customer,
   project,
   projectDraft,
   calculations,
-}: BuildOfferParams): Offer {
+}: BuildOfferSnapshotParams): Offer {
   const hourlyRate = projectDraft.hourlyRate;
 
   const offer = {

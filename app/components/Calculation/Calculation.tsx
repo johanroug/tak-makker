@@ -1,4 +1,5 @@
 import type { WorkItem } from "@/schemas/project";
+import { formatMoney } from "@/lib/format-money";
 import HourlyRate from "../HourlyRate/HourlyRate";
 import OfferDetailsForm from "../OfferDetailsForm/OfferDetailsForm";
 
@@ -21,10 +22,6 @@ type CalculationProps = {
   onProjectDescriptionChange: (description: string) => void;
   onCreateOffer: () => void;
 };
-
-function formatMoney(amount: number | null) {
-  return amount === null ? "—" : `${amount.toLocaleString("da-DK")} kr.`;
-}
 
 export default function Calculation({
   workItems,

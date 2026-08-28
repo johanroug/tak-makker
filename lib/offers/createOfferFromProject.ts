@@ -1,17 +1,14 @@
 import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
 import { isValidMaterialPricingNumber } from "@/lib/material-pricing";
-import { createOfferSnapshot } from "./createOffer";
+import {
+  buildOfferSnapshot,
+  type OfferCalculationValues,
+} from "./buildOfferSnapshot";
 
 type CreateOfferFromProjectParams = {
   projectDraft: ProjectDraft;
-  calculations: {
-    totalLaborPrice: number | null;
-    totalMaterialPrice: number;
-    subtotal: number | null;
-    vatAmount: number | null;
-    finalTotal: number | null;
-  };
+  calculations: OfferCalculationValues;
 };
 
 type CreateOfferFromProjectResult =
@@ -82,7 +79,7 @@ export function createOfferFromProject({
   try {
     return {
       success: true,
-      offer: createOfferSnapshot({
+      offer: buildOfferSnapshot({
         id: crypto.randomUUID(),
         customer: { name: customerName },
         project: {

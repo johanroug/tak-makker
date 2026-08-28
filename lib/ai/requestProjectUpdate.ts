@@ -3,19 +3,18 @@ import {
   type ProjectDraft,
   type ProjectResponse,
 } from "@/schemas/project";
-
 import type { Message } from "@/types/message";
 
-type CreateQuoteParams = {
+type RequestProjectUpdateParams = {
   messages: Message[];
   project: ProjectDraft;
 };
 
-export async function createQuoteRequest({
+export async function requestProjectUpdate({
   messages,
   project,
-}: CreateQuoteParams): Promise<ProjectResponse> {
-  const response = await fetch("/api/quote", {
+}: RequestProjectUpdateParams): Promise<ProjectResponse> {
+  const response = await fetch("/api/project", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,19 +32,13 @@ export async function createQuoteRequest({
 
   if (!response.ok) {
     console.error("API error:", data);
-    throw new Error("Kunne ikke generere tilbud");
+    throw new Error("Kunne ikke opdatere projektet");
   }
 
-  const parsedResponse =
-    ProjectResponseSchema.safeParse(data);
+  const parsedResponse = ProjectResponseSchema.safeParse(data);
 
   if (!parsedResponse.success) {
-    console.error(
-      "Invalid ProjectResponse:",
-      parsedResponse.error,
-      data
-    );
-
+    console.error("Invalid ProjectResponse:", parsedResponse.error, data);
     throw new Error("API'et returnerede ugyldige data");
   }
 

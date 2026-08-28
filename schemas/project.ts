@@ -36,27 +36,6 @@ const AiMaterialSchema = MaterialSchema.extend({
   unitPrice: z.null(),
 });
 
-export const QuoteSchema = z.object({
-  customer: z.object({
-    name: z.string(),
-  }),
-
-  project: z.object({
-    title: z.string(),
-    description: z.string(),
-  }),
-
-  workItems: z.array(WorkItemSchema),
-
-  materials: z.array(AiMaterialSchema),
-
-  price: z.object({
-    amount: z.number(),
-    vatIncluded: z.boolean(),
-  }),
-});
-export type Quote = z.infer<typeof QuoteSchema>;
-
 export const ProjectResponseSchema = z.object({
   complete: z.boolean(),
 
@@ -69,8 +48,6 @@ export const ProjectResponseSchema = z.object({
   workItems: z.array(WorkItemSchema),
 
   materials: z.array(AiMaterialSchema),
-
-  quote: QuoteSchema.nullable(),
 });
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 

@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { ProjectResponseSchema } from "@/schemas/project";
-import { aiInstructions } from "../../../lib/ai/instructions";
+import { aiInstructions } from "@/lib/ai/instructions";
 import { createWorkItemsContext } from "@/lib/ai/work-items-context";
 import { createMaterialsContext } from "@/lib/ai/materials-context";
 import { createProjectDetailsContext } from "@/lib/ai/project-details-context";
@@ -39,25 +39,19 @@ export async function POST(request: Request) {
         ...body.messages,
       ],
       text: {
-        format: zodTextFormat(
-          ProjectResponseSchema,
-          "project_response"
-        ),
+        format: zodTextFormat(ProjectResponseSchema, "project_response"),
       },
     });
 
     return Response.json(response.output_parsed);
   } catch (error) {
-    console.error("QUOTE API ERROR:", error);
+    console.error("PROJECT API ERROR:", error);
 
     return Response.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Unknown error",
+        error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

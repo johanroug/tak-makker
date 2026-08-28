@@ -1,29 +1,29 @@
-type QuoteInputProps = {
-  description: string;
+type ProjectMessageInputProps = {
+  messageDraft: string;
   buttonLabel: string;
   isLoading: boolean;
-  onDescriptionChange: (value: string) => void;
+  onMessageDraftChange: (value: string) => void;
   onSubmit: () => void;
 };
 
-export default function QuoteInput({
-  description,
+export default function ProjectMessageInput({
+  messageDraft,
   buttonLabel,
   isLoading,
-  onDescriptionChange,
+  onMessageDraftChange,
   onSubmit,
-}: QuoteInputProps) {
+}: ProjectMessageInputProps) {
   return (
     <div className="card w-full max-w-[480px]">
-      <label className="mb-2 block font-semibold" htmlFor="quote-description">
+      <label className="mb-2 block font-semibold" htmlFor="project-message">
         Hvad skal vi lave?
       </label>
 
       <textarea
-        id="quote-description"
+        id="project-message"
         className="min-h-[160px] w-full resize-none"
-        value={description}
-        onChange={(event) => onDescriptionChange(event.target.value)}
+        value={messageDraft}
+        onChange={(event) => onMessageDraftChange(event.target.value)}
         placeholder="Beskriv opgaven..."
       />
 

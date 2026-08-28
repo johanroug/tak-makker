@@ -4,11 +4,11 @@
 
 - This is a Next.js App Router application written in strict TypeScript.
 - `app/layout.tsx` owns the document shell, metadata, fonts, and global stylesheet.
-- `app/page.tsx` is the client-side coordinator for the single-page quote workflow.
+- `app/page.tsx` is the client-side coordinator for the single-page project conversation workflow.
 - UI components live under `app/components/`. Prefer focused components with clear responsibilities. Presentational components should receive data through props and report user actions through callbacks.
 - Client-side project state and domain mutations belong in `hooks/useProject.ts`.
 - Shared domain types and runtime contracts belong in `schemas/project.ts`.
-- Browser-to-server AI requests go through `lib/ai/createQuote.ts` and the `app/api/quote/route.ts` Route Handler. Never expose the OpenAI API key or server-only SDK setup to client code.
+- Browser-to-server AI requests go through `lib/ai/requestProjectUpdate.ts` and the `app/api/project/route.ts` Route Handler. Never expose the OpenAI API key or server-only SDK setup to client code.
 - AI instructions and context builders live in `lib/ai/`; keep distinct prompt concerns in separate modules and compose them in `lib/ai/instructions.ts`.
 - The application currently has no database or persistent store. Do not introduce persistence implicitly.
 

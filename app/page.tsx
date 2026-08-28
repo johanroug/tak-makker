@@ -5,19 +5,19 @@ import type { Offer as OfferSnapshot } from "@/schemas/offer";
 import type { Message } from "@/types/message";
 import { useProject } from "@/hooks/useProject";
 import { createOfferFromProject } from "@/lib/offers/createOfferFromProject";
+import { requestProjectUpdate } from "@/lib/ai/requestProjectUpdate";
 import Conversation from "./components/Conversation/Conversation";
 import WorkItems from "./components/WorkItems/WorkItems";
 import Materials from "./components/Materials/Materials";
 import styles from "./page.module.scss";
-import { createQuoteRequest } from "../lib/ai/createQuote";
-import QuoteInput from "./components/QuoteInput/QuoteInput";
+import ProjectMessageInput from "./components/ProjectMessageInput/ProjectMessageInput";
 import Calculation from "./components/Calculation/Calculation";
 import Offer from "./components/Offer/Offer";
 
 export default function Home() {
-  const [description, setDescription] = useState("");
+  const [messageDraft, setMessageDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isCreatingQuote, setIsCreatingQuote] = useState(false);
+  const [isAssistantResponding, setIsAssistantResponding] = useState(false);
   const [offer, setOffer] = useState<OfferSnapshot | null>(null);
   const [offerValidationMessage, setOfferValidationMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -59,16 +59,16 @@ export default function Home() {
     setActiveTab(nextTab);
   }
 
-  async function createQuote() {
-    if (isCreatingQuote) {
+  async function sendProjectMessage() {
+    if (isAssistantResponding) {
       return;
     }
 
-    setIsCreatingQuote(true);
+    setIsAssistantResponding(true);
 
     const userMessage: Message = {
       role: "user",
-      content: description,
+      content: messageDraft,
     };
 
     const updatedMessages = [...messages, userMessage];
@@ -76,7 +76,7 @@ export default function Home() {
     setMessages(updatedMessages);
 
     try {
-      const generatedResponse = await createQuoteRequest({
+      const generatedResponse = await requestProjectUpdate({
         messages: updatedMessages,
         project: projectManagerHook.project,
       });
@@ -92,11 +92,11 @@ export default function Home() {
         setMessages([...updatedMessages, assistantMessage]);
       }
 
-      setDescription("");
+      setMessageDraft("");
     } catch (error) {
-      console.error("Could not create quote:", error);
+      console.error("Could not update project:", error);
     } finally {
-      setIsCreatingQuote(false);
+      setIsAssistantResponding(false);
     }
   }
 
@@ -115,12 +115,12 @@ export default function Home() {
 
         <div className={styles.workspace}>
           <section className={styles.inputColumn}>
-            <QuoteInput
-              description={description}
+            <ProjectMessageInput
+              messageDraft={messageDraft}
               buttonLabel={conversationStarted ? "Fortsæt" : "Start projekt"}
-              isLoading={isCreatingQuote}
-              onDescriptionChange={setDescription}
-              onSubmit={createQuote}
+              isLoading={isAssistantResponding}
+              onMessageDraftChange={setMessageDraft}
+              onSubmit={sendProjectMessage}
             />
           </section>
 

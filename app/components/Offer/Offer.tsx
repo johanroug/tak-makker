@@ -1,12 +1,9 @@
 import type { Offer as OfferSnapshot } from "@/schemas/offer";
+import { formatMoney } from "@/lib/format-money";
 
 type OfferProps = {
   offer: OfferSnapshot;
 };
-
-function formatMoney(amount: number) {
-  return `${amount.toLocaleString("da-DK")} kr.`;
-}
 
 export default function Offer({ offer }: OfferProps) {
   return (
