@@ -1,5 +1,6 @@
 import type { Material } from "@/schemas/project";
 import { isValidMaterialPricingNumber } from "@/lib/material-pricing";
+import { parseNullableNumberInput } from "@/lib/parse-nullable-number-input";
 
 type MaterialsProps = {
   materials: Material[];
@@ -83,7 +84,7 @@ export default function Materials({
                     onChange={(event) =>
                       onMaterialQuantityChange(
                         material,
-                        event.target.value === "" ? null : event.target.valueAsNumber,
+                        parseNullableNumberInput(event.target.value),
                       )
                     }
                   />
@@ -120,7 +121,7 @@ export default function Materials({
                     onChange={(event) =>
                       onMaterialUnitPriceChange(
                         material,
-                        event.target.value === "" ? null : event.target.valueAsNumber,
+                        parseNullableNumberInput(event.target.value),
                       )
                     }
                   />

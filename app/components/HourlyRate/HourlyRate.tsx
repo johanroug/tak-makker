@@ -1,8 +1,9 @@
 import styles from "./HourlyRate.module.scss";
+import { parseNullableNumberInput } from "@/lib/parse-nullable-number-input";
 
 type HourlyRateProps = {
   hourlyRate: number | null;
-  onHourlyRateChange: (hourlyRate: number) => void;
+  onHourlyRateChange: (hourlyRate: number | null) => void;
 };
 
 export default function HourlyRate({ hourlyRate, onHourlyRateChange }: HourlyRateProps) {
@@ -16,7 +17,7 @@ export default function HourlyRate({ hourlyRate, onHourlyRateChange }: HourlyRat
           type="number"
           min="0"
           value={hourlyRate ?? ""}
-          onChange={(event) => onHourlyRateChange(Number(event.target.value))}
+          onChange={(event) => onHourlyRateChange(parseNullableNumberInput(event.target.value))}
         />
 
         <span>kr./time</span>

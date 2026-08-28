@@ -15,7 +15,7 @@ type CalculationProps = {
   projectDescription: string | null;
   offerActionLabel: string;
   validationMessage: string | null;
-  onHourlyRateChange: (hourlyRate: number) => void;
+  onHourlyRateChange: (hourlyRate: number | null) => void;
   onCustomerNameChange: (name: string) => void;
   onProjectTitleChange: (title: string) => void;
   onProjectDescriptionChange: (description: string) => void;

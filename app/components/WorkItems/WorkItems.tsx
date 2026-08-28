@@ -1,10 +1,11 @@
 import type { WorkItem } from "@/schemas/project";
+import { parseNullableNumberInput } from "@/lib/parse-nullable-number-input";
 
 type WorkItemsProps = {
   workItems: WorkItem[];
   hourlyRate: number | null;
   onWorkItemChange: (workItem: WorkItem, accepted: boolean) => void;
-  onEstimatedHoursChange: (workItem: WorkItem, hours: number) => void;
+  onEstimatedHoursChange: (workItem: WorkItem, hours: number | null) => void;
 };
 
 export default function WorkItems({
@@ -52,7 +53,9 @@ export default function WorkItems({
                     step="0.5"
                     value={item.estimatedHours ?? ""}
                     onClick={(event) => event.stopPropagation()}
-                    onChange={(event) => onEstimatedHoursChange(item, Number(event.target.value))}
+                    onChange={(event) =>
+                      onEstimatedHoursChange(item, parseNullableNumberInput(event.target.value))
+                    }
                   />
 
                   <span>timer</span>

@@ -86,22 +86,26 @@ export function useProject() {
     });
   }
 
-  function handleEstimatedHoursChange(workItem: WorkItem, hours: number) {
-    const updatedWorkItems: WorkItem[] = project.workItems.map((item) => {
-      if (item.id !== workItem.id) {
-        return item;
-      }
+  function handleEstimatedHoursChange(workItem: WorkItem, hours: number | null) {
+    const validHours = hours !== null && Number.isFinite(hours) ? hours : null;
+
+    setProject((currentProject) => {
+      const workItems: WorkItem[] = currentProject.workItems.map((item) => {
+        if (item.id !== workItem.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          estimatedHours: validHours,
+          estimatedHoursSource: "user",
+        };
+      });
 
       return {
-        ...item,
-        estimatedHours: hours,
-        estimatedHoursSource: "user",
+        ...currentProject,
+        workItems,
       };
-    });
-
-    setProject({
-      ...project,
-      workItems: updatedWorkItems,
     });
   }
 
@@ -280,11 +284,14 @@ export function useProject() {
     });
   }
 
-  function handleHourlyRateChange(hourlyRate: number) {
+  function handleHourlyRateChange(hourlyRate: number | null) {
+    const validHourlyRate =
+      hourlyRate !== null && Number.isFinite(hourlyRate) ? hourlyRate : null;
+
     setProject((currentProject) => {
       return {
         ...currentProject,
-        hourlyRate,
+        hourlyRate: validHourlyRate,
       };
     });
   }
