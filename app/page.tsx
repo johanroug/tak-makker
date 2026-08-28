@@ -204,6 +204,7 @@ export default function Home() {
                   }
                   onMaterialChange={projectManagerHook.handleMaterialChange}
                   onMaterialQuantityChange={projectManagerHook.handleMaterialQuantityChange}
+                  onMaterialUnitChange={projectManagerHook.handleMaterialUnitChange}
                   onMaterialUnitPriceChange={projectManagerHook.handleMaterialUnitPriceChange}
                 />
               )}

@@ -2,8 +2,9 @@ import { useState } from "react";
 import type { Material, ProjectDraft, ProjectResponse, WorkItem } from "@/schemas/project";
 import {
   hasCompleteMaterialPricing,
-  hasIncompleteAcceptedMaterialPricing,
+  hasIncompleteAcceptedMaterialDetails,
 } from "@/lib/material-pricing";
+import { isWorkItemIncluded } from "@/lib/work-item-selection";
 
 export function useProject() {
   const [project, setProject] = useState<ProjectDraft>({
@@ -28,7 +29,7 @@ export function useProject() {
     hourlyRate === null
       ? null
       : project.workItems
-          .filter((item) => item.status === "accepted")
+          .filter(isWorkItemIncluded)
           .reduce((total, item) => {
             return total + (item.estimatedHours ?? 0) * hourlyRate;
           }, 0);
@@ -41,7 +42,7 @@ export function useProject() {
     return total + material.quantity * material.unitPrice;
   }, 0);
 
-  const hasIncompleteAcceptedMaterials = hasIncompleteAcceptedMaterialPricing(project.materials);
+  const hasIncompleteAcceptedMaterials = hasIncompleteAcceptedMaterialDetails(project.materials);
 
   const subtotal =
     totalLaborPrice === null ? null : totalLaborPrice + totalMaterialPrice;
@@ -154,6 +155,29 @@ export function useProject() {
     });
   }
 
+  function handleMaterialUnitChange(material: Material, unit: string) {
+    const trimmedUnit = unit.trim();
+
+    setProject((currentProject) => {
+      const materials: Material[] = currentProject.materials.map((item) => {
+        if (item.id !== material.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          unit: trimmedUnit || null,
+          unitSource: "user",
+        };
+      });
+
+      return {
+        ...currentProject,
+        materials,
+      };
+    });
+  }
+
   function handleCustomerNameChange(name: string) {
     setProject((currentProject) => ({
       ...currentProject,
@@ -238,6 +262,12 @@ export function useProject() {
               ? "user"
               : newMaterial.quantitySource,
 
+          unit:
+            existingMaterial.unitSource === "user" ? existingMaterial.unit : newMaterial.unit,
+
+          unitSource:
+            existingMaterial.unitSource === "user" ? "user" : newMaterial.unitSource,
+
           unitPrice: existingMaterial.unitPrice,
         };
       });
@@ -308,6 +338,7 @@ export function useProject() {
     handleMaterialChange,
     handleMaterialUnitPriceChange,
     handleMaterialQuantityChange,
+    handleMaterialUnitChange,
     handleCustomerNameChange,
     handleProjectTitleChange,
     handleProjectDescriptionChange,

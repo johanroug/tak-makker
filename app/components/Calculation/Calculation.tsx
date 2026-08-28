@@ -1,5 +1,6 @@
 import type { WorkItem } from "@/schemas/project";
 import { formatMoney } from "@/lib/format-money";
+import { isWorkItemIncluded } from "@/lib/work-item-selection";
 import HourlyRate from "../HourlyRate/HourlyRate";
 import OfferDetailsForm from "../OfferDetailsForm/OfferDetailsForm";
 
@@ -42,9 +43,9 @@ export default function Calculation({
   onProjectDescriptionChange,
   onCreateOffer,
 }: CalculationProps) {
-  const acceptedWorkItemsByTrade = Array.from(
+  const includedWorkItemsByTrade = Array.from(
     workItems
-      .filter((item) => item.status === "accepted")
+      .filter(isWorkItemIncluded)
       .reduce((trades, item) => {
         const estimatedHours = trades.get(item.trade) ?? 0;
 
@@ -62,9 +63,9 @@ export default function Calculation({
       <div className="card card-stack">
         <HourlyRate hourlyRate={hourlyRate} onHourlyRateChange={onHourlyRateChange} />
 
-        {acceptedWorkItemsByTrade.length > 0 && (
+        {includedWorkItemsByTrade.length > 0 && (
           <div className="card-stack">
-            {acceptedWorkItemsByTrade.map(({ trade, estimatedHours }) => {
+            {includedWorkItemsByTrade.map(({ trade, estimatedHours }) => {
               const laborPrice = hourlyRate !== null ? estimatedHours * hourlyRate : null;
 
               return (

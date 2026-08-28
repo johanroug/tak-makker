@@ -18,6 +18,7 @@ export const MaterialSchema = z.object({
   quantity: z.number().nullable(),
   quantitySource: z.enum(["ai", "user"]).nullable(),
   unit: z.string().nullable(),
+  unitSource: z.enum(["ai", "user"]).nullable(),
   unitPrice: z.number().nullable(),
 });
 export type Material = z.infer<typeof MaterialSchema>;
@@ -33,6 +34,7 @@ export const ProjectDetailsSchema = z.object({
 
 const AiMaterialSchema = MaterialSchema.extend({
   quantitySource: z.literal("ai").nullable(),
+  unitSource: z.literal("ai").nullable(),
   unitPrice: z.null(),
 });
 

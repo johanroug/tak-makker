@@ -13,8 +13,10 @@ export function hasCompleteMaterialPricing(
   );
 }
 
-export function hasIncompleteAcceptedMaterialPricing(materials: Material[]) {
+export function hasIncompleteAcceptedMaterialDetails(materials: Material[]) {
   return materials.some(
-    (material) => material.status === "accepted" && !hasCompleteMaterialPricing(material),
+    (material) =>
+      material.status === "accepted" &&
+      (!hasCompleteMaterialPricing(material) || !material.unit?.trim()),
   );
 }

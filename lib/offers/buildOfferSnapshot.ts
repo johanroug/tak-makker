@@ -1,5 +1,6 @@
 import { OfferSchema, type Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
+import { isWorkItemIncluded } from "@/lib/work-item-selection";
 
 export type OfferCalculationValues = {
   totalLaborPrice: number | null;
@@ -31,7 +32,7 @@ export function buildOfferSnapshot({
     customer,
     project,
     workItems: projectDraft.workItems
-      .filter((item) => item.status === "accepted")
+      .filter(isWorkItemIncluded)
       .map((item) => ({
         id: item.id,
         trade: item.trade,

@@ -1,6 +1,7 @@
 import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
 import { isValidMaterialPricingNumber } from "@/lib/material-pricing";
+import { isWorkItemIncluded } from "@/lib/work-item-selection";
 import {
   buildOfferSnapshot,
   type OfferCalculationValues,
@@ -23,7 +24,7 @@ export function createOfferFromProject({
   const customerName = projectDraft.customer.name?.trim() ?? "";
   const projectTitle = projectDraft.project.title?.trim() ?? "";
   const projectDescription = projectDraft.project.description?.trim() ?? "";
-  const acceptedWorkItems = projectDraft.workItems.filter((item) => item.status === "accepted");
+  const includedWorkItems = projectDraft.workItems.filter(isWorkItemIncluded);
   const acceptedMaterials = projectDraft.materials.filter(
     (material) => material.status === "accepted",
   );
@@ -40,10 +41,10 @@ export function createOfferFromProject({
     missing.push("gyldig timepris");
   }
 
-  if (acceptedWorkItems.length === 0) {
+  if (includedWorkItems.length === 0) {
     missing.push("mindst én valgt arbejdsopgave");
   } else if (
-    acceptedWorkItems.some(
+    includedWorkItems.some(
       (item) =>
         item.estimatedHours === null ||
         !Number.isFinite(item.estimatedHours) ||

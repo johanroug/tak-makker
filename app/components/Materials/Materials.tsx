@@ -7,6 +7,7 @@ type MaterialsProps = {
   hasIncompleteAcceptedMaterials: boolean;
   onMaterialChange: (material: Material, accepted: boolean) => void;
   onMaterialQuantityChange: (material: Material, quantity: number | null) => void;
+  onMaterialUnitChange: (material: Material, unit: string) => void;
   onMaterialUnitPriceChange: (material: Material, unitPrice: number | null) => void;
 };
 
@@ -15,6 +16,7 @@ export default function Materials({
   hasIncompleteAcceptedMaterials,
   onMaterialChange,
   onMaterialQuantityChange,
+  onMaterialUnitChange,
   onMaterialUnitPriceChange,
 }: MaterialsProps) {
   if (materials.length === 0) {
@@ -30,7 +32,7 @@ export default function Materials({
           className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
           role="alert"
         >
-          Udfyld antal og pris på de valgte materialer, før du fortsætter.
+          Udfyld antal, enhed og pris på de valgte materialer, før du fortsætter.
         </p>
       )}
 
@@ -43,9 +45,11 @@ export default function Materials({
             ? material.unitPrice
             : null;
           const quantityIsInvalid = material.status === "accepted" && quantity === null;
+          const unitIsInvalid = material.status === "accepted" && !material.unit?.trim();
           const unitPriceIsInvalid = material.status === "accepted" && unitPrice === null;
-          const materialIsIncomplete = quantityIsInvalid || unitPriceIsInvalid;
+          const materialIsIncomplete = quantityIsInvalid || unitIsInvalid || unitPriceIsInvalid;
           const quantityErrorId = `${material.id}-quantity-error`;
+          const unitErrorId = `${material.id}-unit-error`;
           const unitPriceErrorId = `${material.id}-unit-price-error`;
           const totalPrice =
             quantity !== null && unitPrice !== null ? quantity * unitPrice : null;
@@ -89,12 +93,26 @@ export default function Materials({
                     }
                   />
 
-                  {material.unit && <span>{material.unit}</span>}
+                  <input
+                    aria-label={`Enhed for ${material.name}`}
+                    aria-describedby={unitIsInvalid ? unitErrorId : undefined}
+                    aria-invalid={unitIsInvalid}
+                    className={`w-[110px] ${unitIsInvalid ? "border-red-600" : ""}`}
+                    type="text"
+                    value={material.unit ?? ""}
+                    onChange={(event) => onMaterialUnitChange(material, event.target.value)}
+                  />
                 </div>
 
                 {quantityIsInvalid && (
                   <small className="mt-1 block text-red-700" id={quantityErrorId}>
                     Udfyld antal.
+                  </small>
+                )}
+
+                {unitIsInvalid && (
+                  <small className="mt-1 block text-red-700" id={unitErrorId}>
+                    Udfyld enhed.
                   </small>
                 )}
 
@@ -107,10 +125,10 @@ export default function Materials({
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-neutral-600">
-                  <span>Pris pr. {material.unit ?? "enhed"}</span>
+                  <span>Pris pr. enhed</span>
 
                   <input
-                    aria-label={`Pris pr. ${material.unit ?? "enhed"} for ${material.name}`}
+                    aria-label={`Pris pr. enhed for ${material.name}`}
                     aria-describedby={unitPriceIsInvalid ? unitPriceErrorId : undefined}
                     aria-invalid={unitPriceIsInvalid}
                     className={`w-[110px] ${unitPriceIsInvalid ? "border-red-600" : ""}`}
