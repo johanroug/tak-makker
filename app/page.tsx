@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { type ProjectResponse } from "@/schemas/project";
 import type { Message } from "@/types/message";
 import { useProject } from "@/hooks/useProject";
 import Conversation from "./components/Conversation/Conversation";
@@ -20,6 +19,18 @@ export default function Home() {
   >("conversation");
 
   const projectManagerHook = useProject();
+
+  function handleTabChange(nextTab: typeof activeTab) {
+    if (
+      activeTab === "materials" &&
+      nextTab !== "materials" &&
+      projectManagerHook.hasIncompleteAcceptedMaterials
+    ) {
+      return;
+    }
+
+    setActiveTab(nextTab);
+  }
 
   async function createQuote() {
     const userMessage: Message = {
@@ -55,6 +66,8 @@ export default function Home() {
   }
 
   const conversationStarted = messages.length > 0;
+  const tabsAreBlocked =
+    activeTab === "materials" && projectManagerHook.hasIncompleteAcceptedMaterials;
 
   return (
     <main className={`${styles.page} ${conversationStarted ? styles.conversationStarted : ""}`}>
@@ -77,29 +90,54 @@ export default function Home() {
           <section className={styles.conversationColumn}>
             <div className={styles.tabs}>
               <button
-                className={activeTab === "conversation" ? styles.activeTab : ""}
-                onClick={() => setActiveTab("conversation")}
+                className={
+                  activeTab === "conversation"
+                    ? styles.activeTab
+                    : tabsAreBlocked
+                      ? styles.disabledTab
+                      : ""
+                }
+                aria-disabled={tabsAreBlocked}
+                disabled={tabsAreBlocked}
+                onClick={() => handleTabChange("conversation")}
               >
                 Samtale
               </button>
 
               <button
-                className={activeTab === "workItems" ? styles.activeTab : ""}
-                onClick={() => setActiveTab("workItems")}
+                className={
+                  activeTab === "workItems"
+                    ? styles.activeTab
+                    : tabsAreBlocked
+                      ? styles.disabledTab
+                      : ""
+                }
+                aria-disabled={tabsAreBlocked}
+                disabled={tabsAreBlocked}
+                onClick={() => handleTabChange("workItems")}
               >
                 Opgaver
               </button>
 
               <button
                 className={activeTab === "materials" ? styles.activeTab : ""}
-                onClick={() => setActiveTab("materials")}
+                aria-disabled={false}
+                onClick={() => handleTabChange("materials")}
               >
                 Materialer
               </button>
 
               <button
-                className={activeTab === "calculation" ? styles.activeTab : ""}
-                onClick={() => setActiveTab("calculation")}
+                className={
+                  activeTab === "calculation"
+                    ? styles.activeTab
+                    : tabsAreBlocked
+                      ? styles.disabledTab
+                      : ""
+                }
+                aria-disabled={tabsAreBlocked}
+                disabled={tabsAreBlocked}
+                onClick={() => handleTabChange("calculation")}
               >
                 Kalkulation
               </button>
@@ -124,7 +162,12 @@ export default function Home() {
               {activeTab === "materials" && (
                 <Materials
                   materials={projectManagerHook.project.materials}
+                  hasIncompleteAcceptedMaterials={
+                    projectManagerHook.hasIncompleteAcceptedMaterials
+                  }
                   onMaterialChange={projectManagerHook.handleMaterialChange}
+                  onMaterialQuantityChange={projectManagerHook.handleMaterialQuantityChange}
+                  onMaterialUnitPriceChange={projectManagerHook.handleMaterialUnitPriceChange}
                 />
               )}
 
@@ -133,6 +176,10 @@ export default function Home() {
                   workItems={projectManagerHook.project.workItems}
                   hourlyRate={projectManagerHook.project.hourlyRate}
                   totalLaborPrice={projectManagerHook.totalLaborPrice}
+                  totalMaterialPrice={projectManagerHook.totalMaterialPrice}
+                  subtotal={projectManagerHook.subtotal}
+                  vatAmount={projectManagerHook.vatAmount}
+                  finalTotal={projectManagerHook.finalTotal}
                   onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
                 />
               )}

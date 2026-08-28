@@ -5,13 +5,25 @@ type CalculationProps = {
   workItems: WorkItem[];
   hourlyRate: number | null;
   totalLaborPrice: number | null;
+  totalMaterialPrice: number;
+  subtotal: number | null;
+  vatAmount: number | null;
+  finalTotal: number | null;
   onHourlyRateChange: (hourlyRate: number) => void;
 };
+
+function formatMoney(amount: number | null) {
+  return amount === null ? "—" : `${amount.toLocaleString("da-DK")} kr.`;
+}
 
 export default function Calculation({
   workItems,
   hourlyRate,
   totalLaborPrice,
+  totalMaterialPrice,
+  subtotal,
+  vatAmount,
+  finalTotal,
   onHourlyRateChange,
 }: CalculationProps) {
   const acceptedWorkItemsByTrade = Array.from(
@@ -45,9 +57,7 @@ export default function Calculation({
 
                   <div className="flex items-center gap-4 text-sm">
                     <span>{estimatedHours} timer</span>
-                    <strong>
-                      {laborPrice !== null ? `${laborPrice.toLocaleString("da-DK")} kr.` : "—"}
-                    </strong>
+                    <strong>{formatMoney(laborPrice)}</strong>
                   </div>
                 </div>
               );
@@ -58,9 +68,31 @@ export default function Calculation({
         <div className="flex items-center justify-between">
           <span>Samlet arbejdsløn</span>
 
-          <strong>
-            {totalLaborPrice !== null ? `${totalLaborPrice.toLocaleString("da-DK")} kr.` : "—"}
-          </strong>
+          <strong>{formatMoney(totalLaborPrice)}</strong>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span>Samlet materialer</span>
+
+          <strong>{formatMoney(totalMaterialPrice)}</strong>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-neutral-200 pt-3">
+          <span>Subtotal</span>
+
+          <strong>{formatMoney(subtotal)}</strong>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span>Moms (25 %)</span>
+
+          <strong>{formatMoney(vatAmount)}</strong>
+        </div>
+
+        <div className="flex items-center justify-between text-lg">
+          <strong>Total inkl. moms</strong>
+
+          <strong>{formatMoney(finalTotal)}</strong>
         </div>
       </div>
     </section>

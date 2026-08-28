@@ -1,5 +1,9 @@
 import { useState } from "react";
 import type { Material, ProjectDraft, ProjectResponse, WorkItem } from "@/schemas/project";
+import {
+  hasCompleteMaterialPricing,
+  hasIncompleteAcceptedMaterialPricing,
+} from "@/lib/material-pricing";
 
 export function useProject() {
   const [project, setProject] = useState<ProjectDraft>({
@@ -18,6 +22,21 @@ export function useProject() {
           .reduce((total, item) => {
             return total + (item.estimatedHours ?? 0) * hourlyRate;
           }, 0);
+
+  const totalMaterialPrice = project.materials.reduce((total, material) => {
+    if (material.status !== "accepted" || !hasCompleteMaterialPricing(material)) {
+      return total;
+    }
+
+    return total + material.quantity * material.unitPrice;
+  }, 0);
+
+  const hasIncompleteAcceptedMaterials = hasIncompleteAcceptedMaterialPricing(project.materials);
+
+  const subtotal =
+    totalLaborPrice === null ? null : totalLaborPrice + totalMaterialPrice;
+  const vatAmount = subtotal === null ? null : subtotal * 0.25;
+  const finalTotal = subtotal === null || vatAmount === null ? null : subtotal + vatAmount;
 
   function handleWorkItemChange(workItem: WorkItem, accepted: boolean) {
     const updatedWorkItems: WorkItem[] = project.workItems.map((item) => {
@@ -38,20 +57,22 @@ export function useProject() {
   }
 
   function handleMaterialChange(material: Material, accepted: boolean) {
-    const updatedMaterials: Material[] = project.materials.map((item) => {
-      if (item.id !== material.id) {
-        return item;
-      }
+    setProject((currentProject) => {
+      const materials: Material[] = currentProject.materials.map((item) => {
+        if (item.id !== material.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          status: accepted ? "accepted" : "rejected",
+        };
+      });
 
       return {
-        ...item,
-        status: accepted ? "accepted" : "rejected",
+        ...currentProject,
+        materials,
       };
-    });
-
-    setProject({
-      ...project,
-      materials: updatedMaterials,
     });
   }
 
@@ -71,6 +92,51 @@ export function useProject() {
     setProject({
       ...project,
       workItems: updatedWorkItems,
+    });
+  }
+
+  function handleMaterialUnitPriceChange(material: Material, unitPrice: number | null) {
+    const validUnitPrice = unitPrice !== null && Number.isFinite(unitPrice) ? unitPrice : null;
+
+    setProject((currentProject) => {
+      const materials = currentProject.materials.map((item) => {
+        if (item.id !== material.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          unitPrice: validUnitPrice,
+        };
+      });
+
+      return {
+        ...currentProject,
+        materials,
+      };
+    });
+  }
+
+  function handleMaterialQuantityChange(material: Material, quantity: number | null) {
+    const validQuantity = quantity !== null && Number.isFinite(quantity) ? quantity : null;
+
+    setProject((currentProject) => {
+      const materials = currentProject.materials.map((item) => {
+        if (item.id !== material.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          quantity: validQuantity,
+          quantitySource: "user" as const,
+        };
+      });
+
+      return {
+        ...currentProject,
+        materials,
+      };
     });
   }
 
@@ -98,7 +164,7 @@ export function useProject() {
         };
       });
 
-      const materials = generatedResponse.materials.map((newMaterial) => {
+      const materials: Material[] = generatedResponse.materials.map((newMaterial) => {
         const existingMaterial = currentProject.materials.find(
           (material) => material.id === newMaterial.id,
         );
@@ -112,6 +178,18 @@ export function useProject() {
 
           status:
             existingMaterial.status !== "suggested" ? existingMaterial.status : newMaterial.status,
+
+          quantity:
+            existingMaterial.quantitySource === "user"
+              ? existingMaterial.quantity
+              : newMaterial.quantity,
+
+          quantitySource:
+            existingMaterial.quantitySource === "user"
+              ? "user"
+              : newMaterial.quantitySource,
+
+          unitPrice: existingMaterial.unitPrice,
         };
       });
 
@@ -135,8 +213,15 @@ export function useProject() {
   return {
     project,
     totalLaborPrice,
+    totalMaterialPrice,
+    hasIncompleteAcceptedMaterials,
+    subtotal,
+    vatAmount,
+    finalTotal,
     handleWorkItemChange,
     handleMaterialChange,
+    handleMaterialUnitPriceChange,
+    handleMaterialQuantityChange,
     handleEstimatedHoursChange,
     handleHourlyRateChange,
     mergeProjectResponse,

@@ -164,6 +164,11 @@
   font-weight: 600;
 }
 
+.disabledTab {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+}
+
 .tabContent {
   min-height: 0;
   overflow-y: auto;
