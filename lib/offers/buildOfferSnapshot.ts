@@ -12,6 +12,7 @@ export type OfferCalculationValues = {
 
 type BuildOfferSnapshotParams = {
   id: string;
+  company: Offer["company"];
   customer: Offer["customer"];
   project: Offer["project"];
   projectDraft: ProjectDraft;
@@ -20,6 +21,7 @@ type BuildOfferSnapshotParams = {
 
 export function buildOfferSnapshot({
   id,
+  company,
   customer,
   project,
   projectDraft,
@@ -29,6 +31,7 @@ export function buildOfferSnapshot({
 
   const offer = {
     id,
+    company: { ...company },
     customer,
     project,
     workItems: projectDraft.workItems

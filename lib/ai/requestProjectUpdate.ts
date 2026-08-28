@@ -3,7 +3,7 @@ import {
   type ProjectDraft,
   type ProjectResponse,
 } from "@/schemas/project";
-import type { Message } from "@/types/message";
+import type { Message } from "@/schemas/message";
 
 type RequestProjectUpdateParams = {
   messages: Message[];

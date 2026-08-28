@@ -1,4 +1,5 @@
 import type { Offer } from "@/schemas/offer";
+import type { CompanyProfile } from "@/schemas/company-profile";
 import type { ProjectDraft } from "@/schemas/project";
 import { isValidMaterialPricingNumber } from "@/lib/material-pricing";
 import { isWorkItemIncluded } from "@/lib/work-item-selection";
@@ -8,6 +9,7 @@ import {
 } from "./buildOfferSnapshot";
 
 type CreateOfferFromProjectParams = {
+  companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   calculations: OfferCalculationValues;
 };
@@ -17,6 +19,7 @@ type CreateOfferFromProjectResult =
   | { success: false; message: string };
 
 export function createOfferFromProject({
+  companyProfile,
   projectDraft,
   calculations,
 }: CreateOfferFromProjectParams): CreateOfferFromProjectResult {
@@ -28,6 +31,12 @@ export function createOfferFromProject({
   const acceptedMaterials = projectDraft.materials.filter(
     (material) => material.status === "accepted",
   );
+
+  if (!companyProfile.companyName.trim()) missing.push("firmanavn");
+  if (!companyProfile.cvr.trim()) missing.push("CVR");
+  if (!companyProfile.contactName.trim()) missing.push("kontaktperson");
+  if (!companyProfile.phone.trim()) missing.push("telefon");
+  if (!companyProfile.email.trim()) missing.push("e-mail");
 
   if (!customerName) missing.push("kundenavn");
   if (!projectTitle) missing.push("projekttitel");
@@ -82,6 +91,7 @@ export function createOfferFromProject({
       success: true,
       offer: buildOfferSnapshot({
         id: crypto.randomUUID(),
+        company: { ...companyProfile },
         customer: { name: customerName },
         project: {
           title: projectTitle,

@@ -1,4 +1,4 @@
-import type { Message } from "@/types/message";
+import type { Message } from "@/schemas/message";
 import styles from "./Conversation.module.scss";
 
 type ConversationProps = {

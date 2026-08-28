@@ -1,9 +1,12 @@
 import { z } from "zod";
+import { CompanyProfileSchema } from "@/schemas/company-profile";
 
 const MoneySchema = z.number().finite().nonnegative();
 
 export const OfferSchema = z.object({
   id: z.string(),
+
+  company: CompanyProfileSchema,
 
   customer: z.object({
     name: z.string(),

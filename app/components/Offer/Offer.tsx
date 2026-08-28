@@ -21,8 +21,16 @@ export default function Offer({ offer }: OfferProps) {
 
       <div className="card card-stack">
         <div>
+          <h3 className="text-lg font-semibold leading-7">{offer.company.companyName}</h3>
+          <p className="mt-1 text-sm text-neutral-600">CVR {offer.company.cvr}</p>
+          <p className="mt-1 text-sm leading-5 text-neutral-600">
+            {offer.company.contactName} · {offer.company.phone} · {offer.company.email}
+          </p>
+        </div>
+
+        <div className="mt-2 border-t border-neutral-200 pt-4">
           <h3 className="text-lg font-semibold leading-7">{offer.project.title}</h3>
-          <p className="mt-1 text-sm text-neutral-600">{offer.customer.name}</p>
+          <p className="mt-1 text-sm text-neutral-600">Kunde: {offer.customer.name}</p>
           <p className="mt-3 leading-6">{offer.project.description}</p>
         </div>
 

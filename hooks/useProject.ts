@@ -1,27 +1,70 @@
-import { useState } from "react";
-import type { Material, ProjectDraft, ProjectResponse, WorkItem } from "@/schemas/project";
+import { useEffect, useState } from "react";
+import {
+  ProjectDraftSchema,
+  type Material,
+  type ProjectDraft,
+  type ProjectResponse,
+  type WorkItem,
+} from "@/schemas/project";
 import {
   hasCompleteMaterialPricing,
   hasIncompleteAcceptedMaterialDetails,
 } from "@/lib/material-pricing";
 import { isWorkItemIncluded } from "@/lib/work-item-selection";
+import {
+  readStoredValue,
+  STORAGE_KEYS,
+  writeStoredValue,
+} from "@/lib/storage/browser-storage";
+
+const initialProject: ProjectDraft = {
+  customer: {
+    name: null,
+    nameSource: null,
+  },
+  project: {
+    title: null,
+    titleSource: null,
+    description: null,
+    descriptionSource: null,
+  },
+  hourlyRate: null,
+  workItems: [],
+  materials: [],
+};
 
 export function useProject() {
-  const [project, setProject] = useState<ProjectDraft>({
-    customer: {
-      name: null,
-      nameSource: null,
-    },
-    project: {
-      title: null,
-      titleSource: null,
-      description: null,
-      descriptionSource: null,
-    },
-    hourlyRate: null,
-    workItems: [],
-    materials: [],
-  });
+  const [project, setProject] = useState<ProjectDraft>(initialProject);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    const storedProject = readStoredValue(STORAGE_KEYS.projectDraft, ProjectDraftSchema);
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      if (storedProject !== null) {
+        setProject(storedProject);
+      }
+
+      setHasHydrated(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
+    writeStoredValue(STORAGE_KEYS.projectDraft, project, ProjectDraftSchema);
+  }, [hasHydrated, project]);
 
   const hourlyRate = project.hourlyRate;
 
