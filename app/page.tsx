@@ -13,14 +13,11 @@ import {
   STORAGE_KEYS,
   writeStoredValue,
 } from "@/lib/storage/browser-storage";
-import Conversation from "./components/Conversation/Conversation";
-import WorkItems from "./components/WorkItems/WorkItems";
-import Materials from "./components/Materials/Materials";
 import styles from "./page.module.scss";
 import ProjectMessageInput from "./components/ProjectMessageInput/ProjectMessageInput";
-import Calculation from "./components/Calculation/Calculation";
-import Offer from "./components/Offer/Offer";
 import CompanyProfileForm from "./components/CompanyProfileForm/CompanyProfileForm";
+import OfferPreview from "./components/OfferPreview/OfferPreview";
+import SidePanel from "./components/SidePanel/SidePanel";
 
 export default function Home() {
   const [messageDraft, setMessageDraft] = useState("");
@@ -30,9 +27,6 @@ export default function Home() {
   const [offer, setOffer] = useState<OfferSnapshot | null>(null);
   const [hasHydratedOffer, setHasHydratedOffer] = useState(false);
   const [offerValidationMessage, setOfferValidationMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    "conversation" | "workItems" | "materials" | "calculation"
-  >("conversation");
 
   const projectManagerHook = useProject();
   const companyProfileHook = useCompanyProfile();
@@ -125,18 +119,6 @@ export default function Home() {
     setOffer(result.offer);
   }
 
-  function handleTabChange(nextTab: typeof activeTab) {
-    if (
-      activeTab === "materials" &&
-      nextTab !== "materials" &&
-      projectManagerHook.hasIncompleteAcceptedMaterials
-    ) {
-      return;
-    }
-
-    setActiveTab(nextTab);
-  }
-
   async function sendProjectMessage() {
     if (isAssistantResponding) {
       return;
@@ -186,157 +168,103 @@ export default function Home() {
     projectManagerHook.project.workItems.length > 0 ||
     projectManagerHook.project.materials.length > 0;
   const conversationStarted = messages.length > 0 || projectHasData || offer !== null;
-  const tabsAreBlocked =
-    activeTab === "materials" && projectManagerHook.hasIncompleteAcceptedMaterials;
 
   return (
     <main className={`${styles.page} ${conversationStarted ? styles.conversationStarted : ""}`}>
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.title}>Tak Makker</h1>
-
-          <p className={styles.subtitle}>Din digitale makker på jobbet.</p>
+          {conversationStarted && (
+            <details className={styles.companyProfileHeader}>
+              <summary className="cursor-pointer text-sm font-semibold">Virksomhedsprofil</summary>
+              <CompanyProfileForm
+                companyProfile={companyProfileHook.companyProfile}
+                onCompanyNameChange={companyProfileHook.handleCompanyNameChange}
+                onCvrChange={companyProfileHook.handleCvrChange}
+                onContactNameChange={companyProfileHook.handleContactNameChange}
+                onPhoneChange={companyProfileHook.handlePhoneChange}
+                onEmailChange={companyProfileHook.handleEmailChange}
+              />
+            </details>
+          )}
         </header>
 
-        <details className="mx-auto mb-8 max-w-[760px]">
-          <summary className="cursor-pointer font-semibold">Virksomhedsprofil</summary>
+        {!conversationStarted && (
+          <div className={styles.startScreen}>
+            <p className={styles.subtitle}>Din digitale makker på jobbet.</p>
 
-          <CompanyProfileForm
-            companyProfile={companyProfileHook.companyProfile}
-            onCompanyNameChange={companyProfileHook.handleCompanyNameChange}
-            onCvrChange={companyProfileHook.handleCvrChange}
-            onContactNameChange={companyProfileHook.handleContactNameChange}
-            onPhoneChange={companyProfileHook.handlePhoneChange}
-            onEmailChange={companyProfileHook.handleEmailChange}
-          />
-        </details>
+            <details className={styles.startProfile}>
+              <summary className="cursor-pointer font-semibold">Virksomhedsprofil</summary>
+              <CompanyProfileForm
+                companyProfile={companyProfileHook.companyProfile}
+                onCompanyNameChange={companyProfileHook.handleCompanyNameChange}
+                onCvrChange={companyProfileHook.handleCvrChange}
+                onContactNameChange={companyProfileHook.handleContactNameChange}
+                onPhoneChange={companyProfileHook.handlePhoneChange}
+                onEmailChange={companyProfileHook.handleEmailChange}
+              />
+            </details>
 
-        <div className={styles.workspace}>
-          <section className={styles.inputColumn}>
-            <ProjectMessageInput
-              messageDraft={messageDraft}
-              buttonLabel={conversationStarted ? "Fortsæt" : "Start projekt"}
-              isLoading={isAssistantResponding}
-              onMessageDraftChange={setMessageDraft}
-              onSubmit={sendProjectMessage}
-            />
-          </section>
-
-          <section className={styles.conversationColumn}>
-            <div className={styles.tabs}>
-              <button
-                className={
-                  activeTab === "conversation"
-                    ? styles.activeTab
-                    : tabsAreBlocked
-                      ? styles.disabledTab
-                      : ""
-                }
-                aria-disabled={tabsAreBlocked}
-                disabled={tabsAreBlocked}
-                onClick={() => handleTabChange("conversation")}
-              >
-                Samtale
-              </button>
-
-              <button
-                className={
-                  activeTab === "workItems"
-                    ? styles.activeTab
-                    : tabsAreBlocked
-                      ? styles.disabledTab
-                      : ""
-                }
-                aria-disabled={tabsAreBlocked}
-                disabled={tabsAreBlocked}
-                onClick={() => handleTabChange("workItems")}
-              >
-                Opgaver
-              </button>
-
-              <button
-                className={activeTab === "materials" ? styles.activeTab : ""}
-                aria-disabled={false}
-                onClick={() => handleTabChange("materials")}
-              >
-                Materialer
-              </button>
-
-              <button
-                className={
-                  activeTab === "calculation"
-                    ? styles.activeTab
-                    : tabsAreBlocked
-                      ? styles.disabledTab
-                      : ""
-                }
-                aria-disabled={tabsAreBlocked}
-                disabled={tabsAreBlocked}
-                onClick={() => handleTabChange("calculation")}
-              >
-                Kalkulation
-              </button>
+            <div className={styles.startFormWrapper}>
+              <ProjectMessageInput
+                messageDraft={messageDraft}
+                buttonLabel="Start projekt"
+                isLoading={isAssistantResponding}
+                onMessageDraftChange={setMessageDraft}
+                onSubmit={sendProjectMessage}
+              />
             </div>
+          </div>
+        )}
 
-            <div className={styles.tabContent}>
-              {activeTab === "conversation" && (
-                <>
-                  <Conversation messages={messages} />
-                </>
-              )}
+        {conversationStarted && (
+          <div className={styles.workspace}>
+            <section className={styles.offerColumn}>
+              <OfferPreview
+                companyProfile={companyProfileHook.companyProfile}
+                projectDraft={projectManagerHook.project}
+                totalLaborPrice={projectManagerHook.totalLaborPrice}
+                totalMaterialPrice={projectManagerHook.totalMaterialPrice}
+                subtotal={projectManagerHook.subtotal}
+                vatAmount={projectManagerHook.vatAmount}
+                finalTotal={projectManagerHook.finalTotal}
+                onCustomerNameChange={projectManagerHook.handleCustomerNameChange}
+                onProjectTitleChange={projectManagerHook.handleProjectTitleChange}
+                onProjectDescriptionChange={
+                  projectManagerHook.handleProjectDescriptionChange
+                }
+                onWorkItemDescriptionChange={projectManagerHook.handleWorkItemDescriptionChange}
+                onCreateOffer={handleCreateOffer}
+                offerActionLabel="Færdiggør tilbud"
+                validationMessage={offerValidationMessage}
+              />
+            </section>
 
-              {activeTab === "workItems" && (
-                <WorkItems
-                  workItems={projectManagerHook.project.workItems}
-                  hourlyRate={projectManagerHook.project.hourlyRate}
-                  onWorkItemChange={projectManagerHook.handleWorkItemChange}
-                  onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
-                />
-              )}
-
-              {activeTab === "materials" && (
-                <Materials
-                  materials={projectManagerHook.project.materials}
-                  hasIncompleteAcceptedMaterials={
-                    projectManagerHook.hasIncompleteAcceptedMaterials
-                  }
-                  onMaterialChange={projectManagerHook.handleMaterialChange}
-                  onMaterialQuantityChange={projectManagerHook.handleMaterialQuantityChange}
-                  onMaterialUnitChange={projectManagerHook.handleMaterialUnitChange}
-                  onMaterialUnitPriceChange={projectManagerHook.handleMaterialUnitPriceChange}
-                />
-              )}
-
-              {activeTab === "calculation" && (
-                <>
-                  <Calculation
-                    workItems={projectManagerHook.project.workItems}
-                    hourlyRate={projectManagerHook.project.hourlyRate}
-                    totalLaborPrice={projectManagerHook.totalLaborPrice}
-                    totalMaterialPrice={projectManagerHook.totalMaterialPrice}
-                    subtotal={projectManagerHook.subtotal}
-                    vatAmount={projectManagerHook.vatAmount}
-                    finalTotal={projectManagerHook.finalTotal}
-                    customerName={projectManagerHook.project.customer.name}
-                    projectTitle={projectManagerHook.project.project.title}
-                    projectDescription={projectManagerHook.project.project.description}
-                    offerActionLabel={offer ? "Opdater tilbud" : "Opret tilbud"}
-                    validationMessage={offerValidationMessage}
-                    onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
-                    onCustomerNameChange={projectManagerHook.handleCustomerNameChange}
-                    onProjectTitleChange={projectManagerHook.handleProjectTitleChange}
-                    onProjectDescriptionChange={
-                      projectManagerHook.handleProjectDescriptionChange
-                    }
-                    onCreateOffer={handleCreateOffer}
-                  />
-
-                  {offer && <Offer offer={offer} />}
-                </>
-              )}
-            </div>
-          </section>
-        </div>
+            <section className={styles.sidePanelColumn}>
+              <SidePanel
+                workItems={projectManagerHook.project.workItems}
+                materials={projectManagerHook.project.materials}
+                hourlyRate={projectManagerHook.project.hourlyRate}
+                hasIncompleteAcceptedMaterials={
+                  projectManagerHook.hasIncompleteAcceptedMaterials
+                }
+                onWorkItemChange={projectManagerHook.handleWorkItemChange}
+                onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
+                onWorkItemDescriptionChange={projectManagerHook.handleWorkItemDescriptionChange}
+                onHourlyRateChange={projectManagerHook.handleHourlyRateChange}
+                onMaterialChange={projectManagerHook.handleMaterialChange}
+                onMaterialQuantityChange={projectManagerHook.handleMaterialQuantityChange}
+                onMaterialUnitChange={projectManagerHook.handleMaterialUnitChange}
+                onMaterialUnitPriceChange={projectManagerHook.handleMaterialUnitPriceChange}
+                messages={messages}
+                messageDraft={messageDraft}
+                isAssistantResponding={isAssistantResponding}
+                onMessageDraftChange={setMessageDraft}
+                onSendMessage={sendProjectMessage}
+              />
+            </section>
+          </div>
+        )}
       </div>
     </main>
   );

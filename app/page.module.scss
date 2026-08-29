@@ -2,109 +2,106 @@
   min-height: 100vh;
   padding: 48px 24px;
   background: #f4f3ef;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   margin-bottom: 32px;
   text-align: center;
+  transition: margin-bottom 400ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .title {
   margin: 0;
   font-size: 42px;
   font-weight: 700;
+  transition: font-size 400ms ease;
+  flex: 0 0 auto;
 }
 
 .subtitle {
-  margin-top: 8px;
+  margin: 0;
   font-size: 18px;
   color: #666;
+  transition: font-size 400ms ease, opacity 400ms ease;
 }
 
-.workspace {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
-  align-items: start;
-}
-
-.conversationStarted {
-  .workspace {
-    grid-template-columns:
-      minmax(0, 0.8fr)
-      minmax(0, 1.2fr);
-  }
-}
-
-.conversationColumn {
-  opacity: 0;
-  transform: translateX(40px);
-  pointer-events: none;
-
-  transition:
-    opacity 400ms ease,
-    transform 400ms ease;
-}
-
-.conversationStarted {
-  .conversationColumn {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
-  }
-}
-
-.conversationContent {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 20px;
-
-  height: calc(100vh - 180px);
-  min-height: 500px;
-}
-
-.conversationScroll {
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.suggestions {
-  max-height: 40vh;
-  overflow-y: auto;
-}
-
-.inputColumn {
+.startScreen {
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-
-  transition:
-    max-width 400ms ease,
-    transform 400ms ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  flex: 1;
 }
 
-.conversationColumn {
-  opacity: 0;
-  transform: translateX(40px);
-  pointer-events: none;
-
-  transition:
-    opacity 400ms ease,
-    transform 400ms ease;
+.startProfile {
+  width: 100%;
+  max-width: 760px;
+  text-align: left;
 }
 
+.startFormWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.companyProfileHeader {
+  flex: 0 0 auto;
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+/* After conversation starts: show offer + side panel */
 .conversationStarted {
+  padding: 24px 24px;
+
+  .header {
+    margin-bottom: 16px;
+    text-align: left;
+    flex-direction: row;
+  }
+
+  .title {
+    font-size: 20px;
+    flex: 0 0 auto;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
   .workspace {
-    grid-template-columns:
-      minmax(0, 1fr)
-      minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 32px;
+    height: auto;
+    min-height: calc(100vh - 150px);
   }
 
   .inputColumn {
@@ -112,10 +109,68 @@
     margin: 0;
   }
 
-  .conversationColumn {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
+  .offerColumn {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .sidePanelColumn {
+    grid-row: 1;
+    grid-column: 2;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .messageInputArea {
+    display: none !important;
+  }
+}
+
+.offerColumn {
+  display: none;
+}
+
+.sidePanelColumn {
+  display: none;
+}
+
+.messageInputArea {
+  display: none;
+}
+
+.conversationStarted {
+  .offerColumn {
+    display: block;
+  }
+
+  .sidePanelColumn {
+    display: block;
+  }
+}
+
+.conversationColumn {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .conversationStarted {
+    .workspace {
+      grid-template-columns: 1fr;
+    }
+
+    .offerColumn {
+      grid-column: 1;
+    }
+
+    .sidePanelColumn {
+      grid-column: 1;
+    }
+
+    .messageInputArea {
+      grid-column: 1;
+    }
   }
 }
 
@@ -124,20 +179,16 @@
     padding: 32px 16px;
   }
 
-  .conversationStarted {
-    .workspace {
-      grid-template-columns: 1fr;
-    }
+  .header {
+    margin-bottom: 24px;
   }
 
-  .conversationColumn {
-    transform: translateY(20px);
+  .title {
+    font-size: 32px;
   }
 
-  .conversationStarted {
-    .conversationColumn {
-      transform: translateY(0);
-    }
+  .subtitle {
+    font-size: 16px;
   }
 }
 

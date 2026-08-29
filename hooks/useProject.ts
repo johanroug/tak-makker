@@ -270,6 +270,14 @@ export function useProject() {
 
           status: existingItem.status !== "suggested" ? existingItem.status : newItem.status,
 
+          description:
+            existingItem.descriptionSource === "user"
+              ? existingItem.description
+              : newItem.description,
+
+          descriptionSource:
+            existingItem.descriptionSource === "user" ? "user" : newItem.descriptionSource,
+
           estimatedHours:
             existingItem.estimatedHoursSource === "user"
               ? existingItem.estimatedHours
@@ -357,6 +365,29 @@ export function useProject() {
     });
   }
 
+  function handleWorkItemDescriptionChange(workItem: WorkItem, description: string) {
+    const trimmedDescription = description.trim();
+
+    setProject((currentProject) => {
+      const workItems: WorkItem[] = currentProject.workItems.map((item) => {
+        if (item.id !== workItem.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          description: trimmedDescription || item.description,
+          descriptionSource: "user",
+        };
+      });
+
+      return {
+        ...currentProject,
+        workItems,
+      };
+    });
+  }
+
   function handleHourlyRateChange(hourlyRate: number | null) {
     const validHourlyRate =
       hourlyRate !== null && Number.isFinite(hourlyRate) ? hourlyRate : null;
@@ -386,6 +417,7 @@ export function useProject() {
     handleProjectTitleChange,
     handleProjectDescriptionChange,
     handleEstimatedHoursChange,
+    handleWorkItemDescriptionChange,
     handleHourlyRateChange,
     mergeProjectResponse,
   };

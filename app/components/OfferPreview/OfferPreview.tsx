@@ -1,0 +1,315 @@
+"use client";
+
+import { useState } from "react";
+import type { CompanyProfile } from "@/schemas/company-profile";
+import type { ProjectDraft, WorkItem } from "@/schemas/project";
+import { formatMoney } from "@/lib/format-money";
+import { isWorkItemIncluded } from "@/lib/work-item-selection";
+import { hasCompleteMaterialPricing } from "@/lib/material-pricing";
+
+type OfferPreviewProps = {
+  companyProfile: CompanyProfile;
+  projectDraft: ProjectDraft;
+  totalLaborPrice: number | null;
+  totalMaterialPrice: number;
+  subtotal: number | null;
+  vatAmount: number | null;
+  finalTotal: number | null;
+  onCustomerNameChange: (name: string) => void;
+  onProjectTitleChange: (title: string) => void;
+  onProjectDescriptionChange: (description: string) => void;
+  onWorkItemDescriptionChange: (workItem: WorkItem, description: string) => void;
+  onCreateOffer: () => void;
+  offerActionLabel: string;
+  validationMessage: string | null;
+};
+
+export default function OfferPreview({
+  companyProfile,
+  projectDraft,
+  totalLaborPrice,
+  totalMaterialPrice,
+  subtotal,
+  vatAmount,
+  finalTotal,
+  onCustomerNameChange,
+  onProjectTitleChange,
+  onProjectDescriptionChange,
+  onWorkItemDescriptionChange,
+  onCreateOffer,
+  offerActionLabel,
+  validationMessage,
+}: OfferPreviewProps) {
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [editingWorkItemId, setEditingWorkItemId] = useState<string | null>(null);
+  const [editingWorkItemDescription, setEditingWorkItemDescription] = useState<string>("");
+
+  const includedWorkItems = projectDraft.workItems.filter(isWorkItemIncluded);
+
+  const workItemGroups = Array.from(
+    includedWorkItems.reduce((groups, item) => {
+      const items = groups.get(item.trade) ?? [];
+      groups.set(item.trade, [...items, item]);
+      return groups;
+    }, new Map<string, typeof includedWorkItems>()),
+    ([trade, items]) => ({ trade, items }),
+  );
+
+  const acceptedMaterials = projectDraft.materials.filter(
+    (material): material is typeof material & { quantity: number; unitPrice: number } =>
+      material.status === "accepted" && hasCompleteMaterialPricing(material),
+  );
+
+  return (
+    <div className="card card-stack">
+      {/* Company header - compact */}
+      {companyProfile.companyName && (
+        <div className="text-xs text-neutral-600 leading-relaxed">
+          <div className="font-medium">{companyProfile.companyName}</div>
+          {companyProfile.cvr && <div>CVR {companyProfile.cvr}</div>}
+          {(companyProfile.contactName || companyProfile.phone || companyProfile.email) && (
+            <div>
+              {[companyProfile.contactName, companyProfile.phone, companyProfile.email]
+                .filter(Boolean)
+                .join(" · ")}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Project details - display or edit mode */}
+      <div className={companyProfile.companyName ? "border-t border-neutral-200 pt-3" : ""}>
+        {!isEditingProject ? (
+          // Display mode: compact document view
+          <div>
+            {/* Section header */}
+            <div className="text-xs text-neutral-500 font-medium uppercase tracking-wide mb-2">
+              Tilbud
+            </div>
+
+            {/* Project title and customer - prominent */}
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold leading-snug text-neutral-900 mb-1">
+                  {projectDraft.project.title || "Projekt uden titel"}
+                </h2>
+                {projectDraft.customer.name && (
+                  <p className="text-sm text-neutral-600">
+                    Kunde: <span className="font-medium">{projectDraft.customer.name}</span>
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setIsEditingProject(true)}
+                className="shrink-0 px-2 py-1 text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium whitespace-nowrap"
+              >
+                Rediger
+              </button>
+            </div>
+
+            {/* Project description */}
+            {projectDraft.project.description && (
+              <p className="text-sm leading-6 text-neutral-700 mb-3">
+                {projectDraft.project.description}
+              </p>
+            )}
+          </div>
+        ) : (
+          // Edit mode: form inputs
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-neutral-900">Rediger projektoplysninger</h3>
+              <button
+                onClick={() => setIsEditingProject(false)}
+                className="px-2 py-1 text-xs text-neutral-600 hover:text-neutral-900 hover:underline font-medium"
+              >
+                Færdig
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Projekttitel
+                </label>
+                <input
+                  type="text"
+                  value={projectDraft.project.title ?? ""}
+                  onChange={(e) => onProjectTitleChange(e.target.value)}
+                  placeholder="Projekttitel"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Kundenavn
+                </label>
+                <input
+                  type="text"
+                  value={projectDraft.customer.name ?? ""}
+                  onChange={(e) => onCustomerNameChange(e.target.value)}
+                  placeholder="Kundenavn"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Projektbeskrivelse
+                </label>
+                <textarea
+                  value={projectDraft.project.description ?? ""}
+                  onChange={(e) => onProjectDescriptionChange(e.target.value)}
+                  placeholder="Projektbeskrivelse"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Work items */}
+      {workItemGroups.length > 0 && (
+        <div className="border-t border-neutral-200 pt-4">
+          <h3 className="card-title mb-3">Arbejde</h3>
+
+          <div className="card-stack">
+            {workItemGroups.map((group) => (
+              <div key={group.trade}>
+                <strong>{group.trade}</strong>
+
+                <div className="card-stack mt-2">
+                  {group.items.map((item) => (
+                    <div key={item.id}>
+                      {editingWorkItemId === item.id ? (
+                        <div className="mb-2">
+                          <textarea
+                            autoFocus
+                            value={editingWorkItemDescription}
+                            onChange={(e) => setEditingWorkItemDescription(e.target.value)}
+                            onBlur={() => {
+                              if (editingWorkItemDescription.trim()) {
+                                onWorkItemDescriptionChange(item, editingWorkItemDescription);
+                              }
+                              setEditingWorkItemId(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && e.ctrlKey) {
+                                if (editingWorkItemDescription.trim()) {
+                                  onWorkItemDescriptionChange(item, editingWorkItemDescription);
+                                }
+                                setEditingWorkItemId(null);
+                              }
+                              if (e.key === "Escape") {
+                                setEditingWorkItemId(null);
+                              }
+                            }}
+                            className="w-full px-2 py-1 border border-neutral-300 rounded text-sm leading-5"
+                            rows={3}
+                          />
+                        </div>
+                      ) : (
+                        <p
+                          className="text-sm leading-5 text-neutral-600 cursor-pointer hover:text-blue-600 hover:underline"
+                          onClick={() => {
+                            setEditingWorkItemId(item.id);
+                            setEditingWorkItemDescription(item.description);
+                          }}
+                        >
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Materials */}
+      {acceptedMaterials.length > 0 && (
+        <div className="border-t border-neutral-200 pt-4">
+          <h3 className="card-title mb-3">Materialer</h3>
+
+          <div className="card-stack">
+            {acceptedMaterials.map((material) => (
+              <div className="flex items-start justify-between gap-4" key={material.id}>
+                <div>
+                  <strong>{material.name}</strong>
+                  <p className="mt-1 text-sm leading-5 text-neutral-600">
+                    {material.description}
+                  </p>
+                  <small className="text-neutral-500">
+                    {(material.quantity ?? 0).toLocaleString("da-DK")} {material.unit} ×{" "}
+                    {formatMoney(material.unitPrice)}
+                  </small>
+                </div>
+
+                <div className="shrink-0 text-right text-sm whitespace-nowrap">
+                  <strong>
+                    {formatMoney(material.quantity * material.unitPrice)}
+                  </strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pricing summary */}
+      {(includedWorkItems.length > 0 || acceptedMaterials.length > 0) && (
+        <div className="border-t border-neutral-200 pt-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Arbejde</span>
+              <strong>{formatMoney(totalLaborPrice)}</strong>
+            </div>
+
+            {totalMaterialPrice > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span>Materialer</span>
+                <strong>{formatMoney(totalMaterialPrice)}</strong>
+              </div>
+            )}
+
+            <div className="border-t border-neutral-200 pt-2 flex items-center justify-between text-base">
+              <span>Subtotal</span>
+              <strong>{formatMoney(subtotal)}</strong>
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <span>Moms (25%)</span>
+              <strong>{formatMoney(vatAmount)}</strong>
+            </div>
+
+            <div className="border-t border-neutral-200 pt-2 flex items-center justify-between text-lg">
+              <span className="font-semibold">I alt</span>
+              <strong className="text-lg">{formatMoney(finalTotal)}</strong>
+            </div>
+          </div>
+
+          {validationMessage && (
+            <p
+              className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+              role="alert"
+            >
+              {validationMessage}
+            </p>
+          )}
+
+          <button
+            onClick={onCreateOffer}
+            className="primary-button mt-4 w-full"
+          >
+            {offerActionLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

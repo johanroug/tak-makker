@@ -8,6 +8,7 @@ type WorkItemsProps = {
   hourlyRate: number | null;
   onWorkItemChange: (workItem: WorkItem, accepted: boolean) => void;
   onEstimatedHoursChange: (workItem: WorkItem, hours: number | null) => void;
+  onWorkItemDescriptionChange: (workItem: WorkItem, description: string) => void;
 };
 
 export default function WorkItems({
@@ -15,9 +16,12 @@ export default function WorkItems({
   hourlyRate,
   onWorkItemChange,
   onEstimatedHoursChange,
+  onWorkItemDescriptionChange,
 }: WorkItemsProps) {
   const accordionId = useId();
   const [collapsedTrades, setCollapsedTrades] = useState<Set<string>>(() => new Set());
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState<string>("");
 
   if (workItems.length === 0) {
     return null;
@@ -117,7 +121,44 @@ export default function WorkItems({
                         />
 
                         <div className="min-w-0 flex-1">
-                          <p className="mb-4 mt-0 leading-6">{item.description}</p>
+                          {editingItemId === item.id ? (
+                            <div className="mb-4">
+                              <textarea
+                                autoFocus
+                                value={editingDescription}
+                                onChange={(e) => setEditingDescription(e.target.value)}
+                                onBlur={() => {
+                                  if (editingDescription.trim()) {
+                                    onWorkItemDescriptionChange(item, editingDescription);
+                                  }
+                                  setEditingItemId(null);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && e.ctrlKey) {
+                                    if (editingDescription.trim()) {
+                                      onWorkItemDescriptionChange(item, editingDescription);
+                                    }
+                                    setEditingItemId(null);
+                                  }
+                                  if (e.key === "Escape") {
+                                    setEditingItemId(null);
+                                  }
+                                }}
+                                className="w-full px-2 py-1 border border-neutral-300 rounded text-sm leading-6"
+                                rows={3}
+                              />
+                            </div>
+                          ) : (
+                            <p
+                              className="mb-4 mt-0 leading-6 cursor-pointer hover:text-blue-600 hover:underline"
+                              onClick={() => {
+                                setEditingItemId(item.id);
+                                setEditingDescription(item.description);
+                              }}
+                            >
+                              {item.description}
+                            </p>
+                          )}
 
                           <div className="mb-2.5 flex items-center gap-2 text-sm text-neutral-600">
                             <span>Estimeret tid</span>

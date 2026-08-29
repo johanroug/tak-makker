@@ -4,6 +4,7 @@ export const WorkItemSchema = z.object({
   id: z.string(),
   trade: z.string(),
   description: z.string(),
+  descriptionSource: z.enum(["ai", "user"]).nullable(),
   status: z.enum(["suggested", "accepted", "rejected"]),
   estimatedHours: z.number().nullable(),
   estimatedHoursSource: z.enum(["ai", "user"]),
