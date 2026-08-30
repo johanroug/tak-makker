@@ -162,10 +162,14 @@
 
     .offerColumn {
       grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
     }
 
     .sidePanelColumn {
       grid-column: 1;
+      grid-row: 2;
+      min-width: 0;
     }
 
     .messageInputArea {
