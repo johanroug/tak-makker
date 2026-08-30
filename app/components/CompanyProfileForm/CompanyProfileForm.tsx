@@ -1,4 +1,5 @@
 import type { CompanyProfile } from "@/schemas/company-profile";
+import { parseNullableNumberInput } from "@/lib/parse-nullable-number-input";
 
 type CompanyProfileFormProps = {
   companyProfile: CompanyProfile;
@@ -7,6 +8,7 @@ type CompanyProfileFormProps = {
   onContactNameChange: (contactName: string) => void;
   onPhoneChange: (phone: string) => void;
   onEmailChange: (email: string) => void;
+  onDefaultHourlyRateChange: (defaultHourlyRate: number | null) => void;
 };
 
 export default function CompanyProfileForm({
@@ -16,6 +18,7 @@ export default function CompanyProfileForm({
   onContactNameChange,
   onPhoneChange,
   onEmailChange,
+  onDefaultHourlyRateChange,
 }: CompanyProfileFormProps) {
   return (
     <div className="card card-stack mt-3">
@@ -63,6 +66,23 @@ export default function CompanyProfileForm({
           value={companyProfile.email}
           onChange={(event) => onEmailChange(event.target.value)}
         />
+      </label>
+
+      <label className="card-stack gap-1 text-sm">
+        <span>Standard timepris</span>
+        <span className="flex items-center gap-2">
+          <input
+            className="min-w-0 flex-1"
+            type="number"
+            min="0.01"
+            step="any"
+            value={companyProfile.defaultHourlyRate ?? ""}
+            onChange={(event) =>
+              onDefaultHourlyRateChange(parseNullableNumberInput(event.target.value))
+            }
+          />
+          <span>kr./time</span>
+        </span>
       </label>
     </div>
   );

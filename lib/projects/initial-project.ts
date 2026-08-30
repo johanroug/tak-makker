@@ -1,6 +1,6 @@
 import type { ProjectDraft } from "@/schemas/project";
 
-export function createInitialProjectDraft(): ProjectDraft {
+export function createInitialProjectDraft(hourlyRate: number | null = null): ProjectDraft {
   return {
     complete: false,
     customer: {
@@ -15,7 +15,7 @@ export function createInitialProjectDraft(): ProjectDraft {
       offerDescription: null,
       offerDescriptionSource: null,
     },
-    hourlyRate: null,
+    hourlyRate,
     workItems: [],
     materials: [],
   };

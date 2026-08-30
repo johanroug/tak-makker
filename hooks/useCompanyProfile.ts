@@ -12,6 +12,7 @@ const initialCompanyProfile: CompanyProfile = {
   contactName: "",
   phone: "",
   email: "",
+  defaultHourlyRate: null,
 };
 
 export function useCompanyProfile() {
@@ -75,6 +76,20 @@ export function useCompanyProfile() {
     setCompanyProfile((currentProfile) => ({ ...currentProfile, email }));
   }
 
+  function handleDefaultHourlyRateChange(defaultHourlyRate: number | null) {
+    const validDefaultHourlyRate =
+      defaultHourlyRate !== null &&
+      Number.isFinite(defaultHourlyRate) &&
+      defaultHourlyRate > 0
+        ? defaultHourlyRate
+        : null;
+
+    setCompanyProfile((currentProfile) => ({
+      ...currentProfile,
+      defaultHourlyRate: validDefaultHourlyRate,
+    }));
+  }
+
   return {
     companyProfile,
     handleCompanyNameChange,
@@ -82,5 +97,6 @@ export function useCompanyProfile() {
     handleContactNameChange,
     handlePhoneChange,
     handleEmailChange,
+    handleDefaultHourlyRateChange,
   };
 }

@@ -69,7 +69,11 @@ function migrateLegacyProjectStore(): ProjectStore | null {
   return migratedStore;
 }
 
-export function useProjectStore() {
+type UseProjectStoreOptions = {
+  defaultHourlyRate: number | null;
+};
+
+export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
   const [projectStore, setProjectStore] = useLocalStorageState<ProjectStore>({
     key: STORAGE_KEYS.projectStore,
     schema: ProjectStoreSchema,
@@ -83,7 +87,7 @@ export function useProjectStore() {
   function createProject(): ProjectWorkspace {
     const workspace: ProjectWorkspace = {
       id: crypto.randomUUID(),
-      draft: createInitialProjectDraft(),
+      draft: createInitialProjectDraft(defaultHourlyRate),
       messages: [],
       currentOffer: null,
     };

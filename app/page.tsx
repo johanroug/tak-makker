@@ -14,17 +14,20 @@ import ProjectNavigation from "./components/ProjectNavigation/ProjectNavigation"
 import SidePanel from "./components/SidePanel/SidePanel";
 
 export default function Home() {
-  const projectStoreHook = useProjectStore();
+  const companyProfileHook = useCompanyProfile();
+  const projectStoreHook = useProjectStore({
+    defaultHourlyRate: companyProfileHook.companyProfile.defaultHourlyRate,
+  });
   const projectManagerHook = useProject({
     activeProject: projectStoreHook.activeProject,
     updateProject: projectStoreHook.updateProject,
   });
-  const companyProfileHook = useCompanyProfile();
   const conversationHook = useProjectConversation({
     activeProject: projectStoreHook.activeProject,
     createProject: projectStoreHook.createProject,
     updateProject: projectStoreHook.updateProject,
     mergeProjectResponse: projectManagerHook.mergeProjectResponse,
+    defaultHourlyRate: companyProfileHook.companyProfile.defaultHourlyRate,
   });
   const offerHook = useOffer({
     companyProfile: companyProfileHook.companyProfile,
@@ -61,6 +64,7 @@ export default function Home() {
     onContactNameChange: companyProfileHook.handleContactNameChange,
     onPhoneChange: companyProfileHook.handlePhoneChange,
     onEmailChange: companyProfileHook.handleEmailChange,
+    onDefaultHourlyRateChange: companyProfileHook.handleDefaultHourlyRateChange,
   };
 
   return (

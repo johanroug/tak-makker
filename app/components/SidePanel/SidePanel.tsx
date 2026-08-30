@@ -126,9 +126,6 @@ export default function SidePanel({
 
         {activeTab === "conversation" && (
           <div className="flex flex-col gap-4 flex-1">
-            <div className="flex-1 overflow-y-auto">
-              <Conversation messages={messages} />
-            </div>
             <div className="flex-shrink-0">
               <ProjectMessageInput
                 messageDraft={messageDraft}
@@ -137,6 +134,9 @@ export default function SidePanel({
                 onMessageDraftChange={onMessageDraftChange}
                 onSubmit={onSendMessage}
               />
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Conversation messages={messages} />
             </div>
           </div>
         )}

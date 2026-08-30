@@ -13,6 +13,7 @@ type UseProjectConversationOptions = {
     update: (workspace: ProjectWorkspace) => ProjectWorkspace,
   ) => void;
   mergeProjectResponse: (response: ProjectResponse, projectId?: string) => void;
+  defaultHourlyRate: number | null;
 };
 
 export function useProjectConversation({
@@ -20,6 +21,7 @@ export function useProjectConversation({
   createProject,
   updateProject,
   mergeProjectResponse,
+  defaultHourlyRate,
 }: UseProjectConversationOptions) {
   const [messageDraft, setMessageDraft] = useState("");
   const messages = activeProject?.messages ?? [];
@@ -40,7 +42,7 @@ export function useProjectConversation({
       activeProject ??
       ({
         id: crypto.randomUUID(),
-        draft: createInitialProjectDraft(),
+        draft: createInitialProjectDraft(defaultHourlyRate),
         messages: [],
         currentOffer: null,
       } satisfies ProjectWorkspace);

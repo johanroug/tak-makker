@@ -6,6 +6,7 @@ export const CompanyProfileSchema = z.object({
   contactName: z.string(),
   phone: z.string(),
   email: z.string(),
+  defaultHourlyRate: z.number().finite().positive().nullable().default(null),
 });
 
 export type CompanyProfile = z.infer<typeof CompanyProfileSchema>;
