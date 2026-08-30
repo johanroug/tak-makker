@@ -28,12 +28,19 @@ export function buildOfferSnapshot({
   calculations,
 }: BuildOfferSnapshotParams): Offer {
   const hourlyRate = projectDraft.hourlyRate;
+  const offerDescription =
+    projectDraft.project.offerDescription?.trim() ??
+    projectDraft.project.description?.trim() ??
+    "";
 
   const offer = {
     id,
     company: { ...company },
     customer,
-    project,
+    project: {
+      ...project,
+      description: offerDescription,
+    },
     workItems: projectDraft.workItems
       .filter(isWorkItemIncluded)
       .map((item) => ({

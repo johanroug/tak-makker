@@ -164,6 +164,7 @@ export default function Home() {
     projectManagerHook.project.customer.name !== null ||
     projectManagerHook.project.project.title !== null ||
     projectManagerHook.project.project.description !== null ||
+    projectManagerHook.project.project.offerDescription !== null ||
     projectManagerHook.project.hourlyRate !== null ||
     projectManagerHook.project.workItems.length > 0 ||
     projectManagerHook.project.materials.length > 0;
@@ -230,8 +231,8 @@ export default function Home() {
                 finalTotal={projectManagerHook.finalTotal}
                 onCustomerNameChange={projectManagerHook.handleCustomerNameChange}
                 onProjectTitleChange={projectManagerHook.handleProjectTitleChange}
-                onProjectDescriptionChange={
-                  projectManagerHook.handleProjectDescriptionChange
+                onProjectOfferDescriptionChange={
+                  projectManagerHook.handleProjectOfferDescriptionChange
                 }
                 onWorkItemDescriptionChange={projectManagerHook.handleWorkItemDescriptionChange}
                 onCreateOffer={handleCreateOffer}

@@ -26,7 +26,10 @@ export function createOfferFromProject({
   const missing: string[] = [];
   const customerName = projectDraft.customer.name?.trim() ?? "";
   const projectTitle = projectDraft.project.title?.trim() ?? "";
-  const projectDescription = projectDraft.project.description?.trim() ?? "";
+  const projectDescription =
+    projectDraft.project.offerDescription?.trim() ??
+    projectDraft.project.description?.trim() ??
+    "";
   const includedWorkItems = projectDraft.workItems.filter(isWorkItemIncluded);
   const acceptedMaterials = projectDraft.materials.filter(
     (material) => material.status === "accepted",

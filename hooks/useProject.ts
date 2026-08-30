@@ -27,6 +27,8 @@ const initialProject: ProjectDraft = {
     titleSource: null,
     description: null,
     descriptionSource: null,
+    offerDescription: null,
+    offerDescriptionSource: null,
   },
   hourlyRate: null,
   workItems: [],
@@ -47,7 +49,19 @@ export function useProject() {
       }
 
       if (storedProject !== null) {
-        setProject(storedProject);
+        const hydratedProject = {
+          ...storedProject,
+          project: {
+            ...storedProject.project,
+            offerDescription:
+              storedProject.project.offerDescription ?? storedProject.project.description,
+            offerDescriptionSource:
+              storedProject.project.offerDescriptionSource ??
+              (storedProject.project.offerDescription ? "ai" : null),
+          },
+        } satisfies ProjectDraft;
+
+        setProject(hydratedProject);
       }
 
       setHasHydrated(true);
@@ -253,11 +267,23 @@ export function useProject() {
     }));
   }
 
+  function handleProjectOfferDescriptionChange(description: string) {
+    setProject((currentProject) => ({
+      ...currentProject,
+      project: {
+        ...currentProject.project,
+        offerDescription: description,
+        offerDescriptionSource: "user",
+      },
+    }));
+  }
+
   function mergeProjectResponse(generatedResponse: ProjectResponse) {
     setProject((currentProject) => {
       const customerName = generatedResponse.customer.name?.trim();
       const projectTitle = generatedResponse.project.title?.trim();
       const projectDescription = generatedResponse.project.description?.trim();
+      const projectOfferDescription = generatedResponse.project.offerDescription?.trim();
       const workItems = generatedResponse.workItems.map((newItem) => {
         const existingItem = currentProject.workItems.find((item) => item.id === newItem.id);
 
@@ -358,6 +384,16 @@ export function useProject() {
               : projectDescription
                 ? "ai"
                 : currentProject.project.descriptionSource,
+          offerDescription:
+            currentProject.project.offerDescriptionSource === "user"
+              ? currentProject.project.offerDescription
+              : projectOfferDescription || currentProject.project.offerDescription,
+          offerDescriptionSource:
+            currentProject.project.offerDescriptionSource === "user"
+              ? "user"
+              : projectOfferDescription
+                ? "ai"
+                : currentProject.project.offerDescriptionSource,
         },
         workItems,
         materials,
@@ -416,6 +452,7 @@ export function useProject() {
     handleCustomerNameChange,
     handleProjectTitleChange,
     handleProjectDescriptionChange,
+    handleProjectOfferDescriptionChange,
     handleEstimatedHoursChange,
     handleWorkItemDescriptionChange,
     handleHourlyRateChange,

@@ -17,7 +17,7 @@ type OfferPreviewProps = {
   finalTotal: number | null;
   onCustomerNameChange: (name: string) => void;
   onProjectTitleChange: (title: string) => void;
-  onProjectDescriptionChange: (description: string) => void;
+  onProjectOfferDescriptionChange: (description: string) => void;
   onWorkItemDescriptionChange: (workItem: WorkItem, description: string) => void;
   onCreateOffer: () => void;
   offerActionLabel: string;
@@ -34,7 +34,7 @@ export default function OfferPreview({
   finalTotal,
   onCustomerNameChange,
   onProjectTitleChange,
-  onProjectDescriptionChange,
+  onProjectOfferDescriptionChange,
   onWorkItemDescriptionChange,
   onCreateOffer,
   offerActionLabel,
@@ -45,6 +45,8 @@ export default function OfferPreview({
   const [editingWorkItemDescription, setEditingWorkItemDescription] = useState<string>("");
 
   const includedWorkItems = projectDraft.workItems.filter(isWorkItemIncluded);
+  const customerOfferDescription =
+    projectDraft.project.offerDescription ?? projectDraft.project.description ?? "";
 
   const workItemGroups = Array.from(
     includedWorkItems.reduce((groups, item) => {
@@ -107,10 +109,10 @@ export default function OfferPreview({
               </button>
             </div>
 
-            {/* Project description */}
-            {projectDraft.project.description && (
+            {/* Customer-facing project description */}
+            {customerOfferDescription && (
               <p className="text-sm leading-6 text-neutral-700 mb-3">
-                {projectDraft.project.description}
+                {customerOfferDescription}
               </p>
             )}
           </div>
@@ -156,12 +158,12 @@ export default function OfferPreview({
 
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Projektbeskrivelse
+                  Tilbudsbeskrivelse
                 </label>
                 <textarea
-                  value={projectDraft.project.description ?? ""}
-                  onChange={(e) => onProjectDescriptionChange(e.target.value)}
-                  placeholder="Projektbeskrivelse"
+                  value={projectDraft.project.offerDescription ?? ""}
+                  onChange={(e) => onProjectOfferDescriptionChange(e.target.value)}
+                  placeholder="Tilbudsbeskrivelse"
                   className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
                   rows={3}
                 />

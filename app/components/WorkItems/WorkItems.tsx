@@ -54,7 +54,7 @@ export default function WorkItems({
 
   return (
     <section className="mt-6">
-      <h2 className="section-heading">Foreslåede arbejdsopgaver</h2>
+      <h2 className="section-heading">Opgaver</h2>
 
       <div className="card-stack">
         {workItemsByTrade.map(({ trade, items }, groupIndex) => {
