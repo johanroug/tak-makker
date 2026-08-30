@@ -35,26 +35,31 @@ export function createOfferFromProject({
     (material) => material.status === "accepted",
   );
 
-  if (!companyProfile.companyName.trim()) missing.push("firmanavn");
-  if (!companyProfile.cvr.trim()) missing.push("CVR");
-  if (!companyProfile.contactName.trim()) missing.push("kontaktperson");
-  if (!companyProfile.phone.trim()) missing.push("telefon");
-  if (!companyProfile.email.trim()) missing.push("e-mail");
+  const hasCompanyProfileData =
+    companyProfile.companyName.trim() &&
+    companyProfile.cvr.trim() &&
+    companyProfile.contactName.trim() &&
+    companyProfile.phone.trim() &&
+    companyProfile.email.trim();
 
-  if (!customerName) missing.push("kundenavn");
-  if (!projectTitle) missing.push("projekttitel");
-  if (!projectDescription) missing.push("projektbeskrivelse");
+  if (!hasCompanyProfileData) {
+    missing.push("Udfyld virksomhedsoplysninger.");
+  }
+
+  if (!customerName) missing.push("Udfyld kundenavn.");
+  if (!projectTitle) missing.push("Udfyld projekttitel.");
+  if (!projectDescription) missing.push("Udfyld projektbeskrivelse.");
 
   if (
     projectDraft.hourlyRate === null ||
     !Number.isFinite(projectDraft.hourlyRate) ||
     projectDraft.hourlyRate < 0
   ) {
-    missing.push("gyldig timepris");
+    missing.push("Angiv en gyldig timepris.");
   }
 
   if (includedWorkItems.length === 0) {
-    missing.push("mindst én valgt arbejdsopgave");
+    missing.push("Vælg mindst én arbejdsopgave.");
   } else if (
     includedWorkItems.some(
       (item) =>
@@ -63,7 +68,7 @@ export function createOfferFromProject({
         item.estimatedHours < 0,
     )
   ) {
-    missing.push("gyldigt timeestimat på alle valgte arbejdsopgaver");
+    missing.push("Angiv gyldige tidsestimat for valgte arbejdsopgaver.");
   }
 
   if (
@@ -75,39 +80,37 @@ export function createOfferFromProject({
         material.unitPrice < 0,
     )
   ) {
-    missing.push("antal og pris på alle valgte materialer");
+    missing.push("Angiv antal og pris på valgte materialer.");
   }
 
   if (acceptedMaterials.some((material) => !material.unit?.trim())) {
-    missing.push("enhed på alle valgte materialer");
+    missing.push("Angiv enhed på valgte materialer.");
   }
 
   if (missing.length > 0) {
     return {
       success: false,
-      message: `Tilbuddet kan ikke oprettes. Udfyld: ${missing.join(", ")}.`,
+      message: `Tilbuddet kan ikke færdiggøres endnu. ${missing.join(" ")}`,
     };
   }
 
   try {
-    return {
-      success: true,
-      offer: buildOfferSnapshot({
-        id: crypto.randomUUID(),
-        company: { ...companyProfile },
-        customer: { name: customerName },
-        project: {
-          title: projectTitle,
-          description: projectDescription,
-        },
-        projectDraft,
-        calculations,
-      }),
-    };
+    const offer = buildOfferSnapshot({
+      id: crypto.randomUUID(),
+      company: { ...companyProfile },
+      customer: { name: customerName },
+      project: {
+        title: projectTitle,
+        description: projectDescription,
+      },
+      projectDraft,
+      calculations,
+    });
+    return { success: true, offer };
   } catch {
     return {
       success: false,
-      message: "Tilbuddet kan ikke oprettes, fordi projektets beregninger er ufuldstændige.",
+      message: "Tilbuddet kan ikke færdiggøres endnu. Projektets beregninger er ufuldstændige.",
     };
   }
 }

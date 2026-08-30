@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CompanyProfile } from "@/schemas/company-profile";
+import type { Offer as OfferSnapshot } from "@/schemas/offer";
 import type { ProjectDraft, WorkItem } from "@/schemas/project";
 import { formatMoney } from "@/lib/format-money";
 import { isWorkItemIncluded } from "@/lib/work-item-selection";
@@ -10,6 +11,7 @@ import { hasCompleteMaterialPricing } from "@/lib/material-pricing";
 type OfferPreviewProps = {
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
+  currentOffer: OfferSnapshot | null;
   totalLaborPrice: number | null;
   totalMaterialPrice: number;
   subtotal: number | null;
@@ -27,6 +29,7 @@ type OfferPreviewProps = {
 export default function OfferPreview({
   companyProfile,
   projectDraft,
+  currentOffer,
   totalLaborPrice,
   totalMaterialPrice,
   subtotal,
@@ -43,10 +46,15 @@ export default function OfferPreview({
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editingWorkItemId, setEditingWorkItemId] = useState<string | null>(null);
   const [editingWorkItemDescription, setEditingWorkItemDescription] = useState<string>("");
+  const [isConfirmingIncompleteFinalization, setIsConfirmingIncompleteFinalization] =
+    useState(false);
+
+  const isOfferFinalized = currentOffer !== null;
 
   const includedWorkItems = projectDraft.workItems.filter(isWorkItemIncluded);
   const customerOfferDescription =
     projectDraft.project.offerDescription ?? projectDraft.project.description ?? "";
+  const isProjectComplete = projectDraft.complete;
 
   const workItemGroups = Array.from(
     includedWorkItems.reduce((groups, item) => {
@@ -85,9 +93,24 @@ export default function OfferPreview({
           // Display mode: compact document view
           <div>
             {/* Section header */}
-            <div className="text-xs text-neutral-500 font-medium uppercase tracking-wide mb-2">
-              Tilbud
+            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+              <span>TILBUD</span>
+              {!isOfferFinalized && !isProjectComplete && (
+                <span className="ml-2 text-[10px] font-semibold tracking-[0.18em] text-neutral-400">
+                  · UDKAST
+                </span>
+              )}
             </div>
+
+            {isOfferFinalized && (
+              <div
+                className="mb-3 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-xs font-medium text-emerald-800"
+                aria-live="polite"
+              >
+                <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                Tilbud færdiggjort
+              </div>
+            )}
 
             {/* Project title and customer - prominent */}
             <div className="flex items-start justify-between gap-4 mb-3">
@@ -95,11 +118,11 @@ export default function OfferPreview({
                 <h2 className="text-lg font-semibold leading-snug text-neutral-900 mb-1">
                   {projectDraft.project.title || "Projekt uden titel"}
                 </h2>
-                {projectDraft.customer.name && (
-                  <p className="text-sm text-neutral-600">
-                    Kunde: <span className="font-medium">{projectDraft.customer.name}</span>
-                  </p>
-                )}
+                <p className="text-sm text-neutral-600">
+                  Kundenavn: <span className="font-medium">
+                    {projectDraft.customer.name || "Ikke angivet"}
+                  </span>
+                </p>
               </div>
               <button
                 onClick={() => setIsEditingProject(true)}
@@ -110,11 +133,11 @@ export default function OfferPreview({
             </div>
 
             {/* Customer-facing project description */}
-            {customerOfferDescription && (
-              <p className="text-sm leading-6 text-neutral-700 mb-3">
-                {customerOfferDescription}
-              </p>
-            )}
+            <p className="text-sm leading-6 text-neutral-700 mb-3">
+              Beskrivelse: <span className="font-medium">
+                {customerOfferDescription || "Ikke angivet"}
+              </span>
+            </p>
           </div>
         ) : (
           // Edit mode: form inputs
@@ -295,7 +318,7 @@ export default function OfferPreview({
             </div>
           </div>
 
-          {validationMessage && (
+          {!isOfferFinalized && validationMessage && (
             <p
               className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
               role="alert"
@@ -304,12 +327,50 @@ export default function OfferPreview({
             </p>
           )}
 
-          <button
-            onClick={onCreateOffer}
-            className="primary-button mt-4 w-full"
-          >
-            {offerActionLabel}
-          </button>
+          {!isOfferFinalized && isConfirmingIncompleteFinalization && !isProjectComplete && (
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+              <p className="leading-6">
+                Tak Makker mangler stadig oplysninger om projektet. Du kan godt færdiggøre
+                tilbuddet alligevel.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmingIncompleteFinalization(false)}
+                  className="flex-1 rounded-md border border-amber-300 bg-white px-3 py-2 text-sm font-medium text-amber-900 hover:bg-amber-100"
+                >
+                  Fortsæt arbejdet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsConfirmingIncompleteFinalization(false);
+                    onCreateOffer();
+                  }}
+                  className="flex-1 rounded-md bg-amber-700 px-3 py-2 text-sm font-medium text-white hover:bg-amber-800"
+                >
+                  Færdiggør alligevel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!isConfirmingIncompleteFinalization && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!isProjectComplete) {
+                  setIsConfirmingIncompleteFinalization(true);
+                  return;
+                }
+
+                onCreateOffer();
+              }}
+              className="primary-button mt-4 w-full"
+            >
+              {offerActionLabel}
+            </button>
+          )}
         </div>
       )}
     </div>

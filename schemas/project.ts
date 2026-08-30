@@ -56,6 +56,7 @@ export const ProjectResponseSchema = z.object({
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 
 export const ProjectDraftSchema = z.object({
+  complete: z.boolean().default(false),
   customer: ProjectCustomerSchema.extend({
     nameSource: z.enum(["ai", "user"]).nullable().default(null),
   }),

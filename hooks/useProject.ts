@@ -18,6 +18,7 @@ import {
 } from "@/lib/storage/browser-storage";
 
 const initialProject: ProjectDraft = {
+  complete: false,
   customer: {
     name: null,
     nameSource: null,
@@ -51,6 +52,7 @@ export function useProject() {
       if (storedProject !== null) {
         const hydratedProject = {
           ...storedProject,
+          complete: storedProject.complete ?? false,
           project: {
             ...storedProject.project,
             offerDescription:
@@ -351,6 +353,7 @@ export function useProject() {
 
       return {
         ...currentProject,
+        complete: generatedResponse.complete,
         customer: {
           name:
             currentProject.customer.nameSource === "user"

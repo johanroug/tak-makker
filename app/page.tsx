@@ -24,6 +24,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasHydratedMessages, setHasHydratedMessages] = useState(false);
   const [isAssistantResponding, setIsAssistantResponding] = useState(false);
+  const [initialProjectError, setInitialProjectError] = useState<string | null>(null);
   const [offer, setOffer] = useState<OfferSnapshot | null>(null);
   const [hasHydratedOffer, setHasHydratedOffer] = useState(false);
   const [offerValidationMessage, setOfferValidationMessage] = useState<string | null>(null);
@@ -119,25 +120,30 @@ export default function Home() {
     setOffer(result.offer);
   }
 
-  async function sendProjectMessage() {
+  async function sendProjectMessage(isInitialRequest = false) {
     if (isAssistantResponding) {
       return;
     }
 
     setIsAssistantResponding(true);
+    if (isInitialRequest) {
+      setInitialProjectError(null);
+    }
 
     const userMessage: Message = {
       role: "user",
       content: messageDraft,
     };
 
-    const updatedMessages = [...messages, userMessage];
+    const requestMessages = [...messages, userMessage];
 
-    setMessages(updatedMessages);
+    if (!isInitialRequest) {
+      setMessages(requestMessages);
+    }
 
     try {
       const generatedResponse = await requestProjectUpdate({
-        messages: updatedMessages,
+        messages: requestMessages,
         project: projectManagerHook.project,
       });
 
@@ -149,12 +155,21 @@ export default function Home() {
           content: generatedResponse.questions.join("\n"),
         };
 
-        setMessages([...updatedMessages, assistantMessage]);
+        const nextMessages = isInitialRequest
+          ? [...requestMessages, assistantMessage]
+          : [...requestMessages, assistantMessage];
+
+        setMessages(nextMessages);
+      } else if (isInitialRequest) {
+        setMessages(requestMessages);
       }
 
       setMessageDraft("");
     } catch (error) {
       console.error("Could not update project:", error);
+      if (isInitialRequest) {
+        setInitialProjectError("Tak Makker kunne ikke starte projektet. Prøv igen.");
+      }
     } finally {
       setIsAssistantResponding(false);
     }
@@ -211,9 +226,15 @@ export default function Home() {
                 messageDraft={messageDraft}
                 buttonLabel="Start projekt"
                 isLoading={isAssistantResponding}
+                loadingLabel="Arbejder…"
                 onMessageDraftChange={setMessageDraft}
-                onSubmit={sendProjectMessage}
+                onSubmit={() => sendProjectMessage(true)}
               />
+              {initialProjectError && (
+                <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800" role="alert">
+                  {initialProjectError}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -224,6 +245,7 @@ export default function Home() {
               <OfferPreview
                 companyProfile={companyProfileHook.companyProfile}
                 projectDraft={projectManagerHook.project}
+                currentOffer={offer}
                 totalLaborPrice={projectManagerHook.totalLaborPrice}
                 totalMaterialPrice={projectManagerHook.totalMaterialPrice}
                 subtotal={projectManagerHook.subtotal}
@@ -236,7 +258,7 @@ export default function Home() {
                 }
                 onWorkItemDescriptionChange={projectManagerHook.handleWorkItemDescriptionChange}
                 onCreateOffer={handleCreateOffer}
-                offerActionLabel="Færdiggør tilbud"
+                offerActionLabel={offer === null ? "Færdiggør tilbud" : "Færdiggør ny version"}
                 validationMessage={offerValidationMessage}
               />
             </section>
@@ -261,7 +283,7 @@ export default function Home() {
                 messageDraft={messageDraft}
                 isAssistantResponding={isAssistantResponding}
                 onMessageDraftChange={setMessageDraft}
-                onSendMessage={sendProjectMessage}
+                onSendMessage={() => sendProjectMessage(false)}
               />
             </section>
           </div>

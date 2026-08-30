@@ -2,6 +2,7 @@ type ProjectMessageInputProps = {
   messageDraft: string;
   buttonLabel: string;
   isLoading: boolean;
+  loadingLabel?: string;
   onMessageDraftChange: (value: string) => void;
   onSubmit: () => void;
 };
@@ -10,6 +11,7 @@ export default function ProjectMessageInput({
   messageDraft,
   buttonLabel,
   isLoading,
+  loadingLabel,
   onMessageDraftChange,
   onSubmit,
 }: ProjectMessageInputProps) {
@@ -41,7 +43,9 @@ export default function ProjectMessageInput({
               aria-hidden="true"
             />
           )}
-          <span aria-live="polite">{isLoading ? "Tak Makker tænker..." : buttonLabel}</span>
+          <span aria-live="polite">
+            {isLoading ? loadingLabel ?? "Tak Makker tænker..." : buttonLabel}
+          </span>
         </button>
       </div>
     </div>
