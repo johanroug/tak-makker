@@ -4,22 +4,33 @@ import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { useOffer } from "@/hooks/useOffer";
 import { useProject } from "@/hooks/useProject";
 import { useProjectConversation } from "@/hooks/useProjectConversation";
+import { useProjectStore } from "@/hooks/useProjectStore";
+import { shouldShowProjectInNavigation } from "@/lib/projects/project-navigation";
 import styles from "./page.module.scss";
 import CompanyProfileForm from "./components/CompanyProfileForm/CompanyProfileForm";
 import OfferPreview from "./components/OfferPreview/OfferPreview";
 import ProjectMessageInput from "./components/ProjectMessageInput/ProjectMessageInput";
+import ProjectNavigation from "./components/ProjectNavigation/ProjectNavigation";
 import SidePanel from "./components/SidePanel/SidePanel";
 
 export default function Home() {
-  const projectManagerHook = useProject();
+  const projectStoreHook = useProjectStore();
+  const projectManagerHook = useProject({
+    activeProject: projectStoreHook.activeProject,
+    updateProject: projectStoreHook.updateProject,
+  });
   const companyProfileHook = useCompanyProfile();
   const conversationHook = useProjectConversation({
-    project: projectManagerHook.project,
+    activeProject: projectStoreHook.activeProject,
+    createProject: projectStoreHook.createProject,
+    updateProject: projectStoreHook.updateProject,
     mergeProjectResponse: projectManagerHook.mergeProjectResponse,
   });
   const offerHook = useOffer({
     companyProfile: companyProfileHook.companyProfile,
     projectDraft: projectManagerHook.project,
+    activeProject: projectStoreHook.activeProject,
+    updateProject: projectStoreHook.updateProject,
     calculations: {
       totalLaborPrice: projectManagerHook.totalLaborPrice,
       totalMaterialPrice: projectManagerHook.totalMaterialPrice,
@@ -39,6 +50,9 @@ export default function Home() {
     projectManagerHook.project.materials.length > 0;
   const conversationStarted =
     conversationHook.messages.length > 0 || projectHasData || offerHook.offer !== null;
+  const navigableProjects = projectStoreHook.projectStore.projects.filter(
+    shouldShowProjectInNavigation,
+  );
 
   const companyProfileFormProps = {
     companyProfile: companyProfileHook.companyProfile,
@@ -54,6 +68,13 @@ export default function Home() {
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.title}>Tak Makker</h1>
+          <ProjectNavigation
+            activeProjectId={projectStoreHook.projectStore.activeProjectId}
+            projects={navigableProjects}
+            disabled={conversationHook.isAssistantResponding}
+            onSelectProject={projectStoreHook.setActiveProjectId}
+            onNewProject={() => projectStoreHook.setActiveProjectId(null)}
+          />
           {conversationStarted && (
             <details className={styles.companyProfileHeader}>
               <summary className="cursor-pointer text-sm font-semibold">Virksomhedsprofil</summary>

@@ -12,6 +12,7 @@ type UseLocalStorageStateOptions<T> = {
   schema: z.ZodType<T>;
   initialValue: T;
   removeWhenNull?: boolean;
+  migrate?: () => T | null;
 };
 
 export function useLocalStorageState<T>({
@@ -19,12 +20,13 @@ export function useLocalStorageState<T>({
   schema,
   initialValue,
   removeWhenNull = false,
+  migrate,
 }: UseLocalStorageStateOptions<T>): [T, Dispatch<SetStateAction<T>>] {
   const [value, setValue] = useState(initialValue);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
-    const storedValue = readStoredValue(key, schema);
+    const storedValue = readStoredValue(key, schema) ?? migrate?.() ?? null;
     let cancelled = false;
 
     queueMicrotask(() => {
@@ -42,7 +44,7 @@ export function useLocalStorageState<T>({
     return () => {
       cancelled = true;
     };
-  }, [key, schema]);
+  }, [key, migrate, schema]);
 
   useEffect(() => {
     if (!hasHydrated) {

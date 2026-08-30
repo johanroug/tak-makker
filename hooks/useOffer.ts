@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { createOfferFromProject } from "@/lib/offers/createOfferFromProject";
-import { STORAGE_KEYS } from "@/lib/storage/browser-storage";
 import type { CompanyProfile } from "@/schemas/company-profile";
-import { OfferSchema, type Offer } from "@/schemas/offer";
+import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
+import type { ProjectWorkspace } from "@/schemas/project-store";
 
 type ProjectCalculations = {
   totalLaborPrice: number | null;
@@ -17,18 +16,22 @@ type ProjectCalculations = {
 type UseOfferOptions = {
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
+  activeProject: ProjectWorkspace | null;
+  updateProject: (
+    projectId: string,
+    update: (workspace: ProjectWorkspace) => ProjectWorkspace,
+  ) => void;
   calculations: ProjectCalculations;
 };
 
-const StoredOfferSchema = OfferSchema.nullable();
-
-export function useOffer({ companyProfile, projectDraft, calculations }: UseOfferOptions) {
-  const [offer, setOffer] = useLocalStorageState<Offer | null>({
-    key: STORAGE_KEYS.currentOffer,
-    schema: StoredOfferSchema,
-    initialValue: null,
-    removeWhenNull: true,
-  });
+export function useOffer({
+  companyProfile,
+  projectDraft,
+  activeProject,
+  updateProject,
+  calculations,
+}: UseOfferOptions) {
+  const offer: Offer | null = activeProject?.currentOffer ?? null;
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
   function createOffer() {
@@ -40,7 +43,12 @@ export function useOffer({ companyProfile, projectDraft, calculations }: UseOffe
     }
 
     setValidationMessage(null);
-    setOffer(result.offer);
+    if (activeProject !== null) {
+      updateProject(activeProject.id, (workspace) => ({
+        ...workspace,
+        currentOffer: result.offer,
+      }));
+    }
   }
 
   return { offer, validationMessage, createOffer };

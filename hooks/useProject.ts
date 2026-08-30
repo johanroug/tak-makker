@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import type { SetStateAction } from "react";
 import {
-  ProjectDraftSchema,
   type Material,
   type ProjectDraft,
   type ProjectResponse,
@@ -11,76 +10,30 @@ import {
   hasIncompleteAcceptedMaterialDetails,
 } from "@/lib/material-pricing";
 import { isWorkItemIncluded } from "@/lib/work-item-selection";
-import {
-  readStoredValue,
-  STORAGE_KEYS,
-  writeStoredValue,
-} from "@/lib/storage/browser-storage";
+import { createInitialProjectDraft } from "@/lib/projects/initial-project";
+import type { ProjectWorkspace } from "@/schemas/project-store";
 
-const initialProject: ProjectDraft = {
-  complete: false,
-  customer: {
-    name: null,
-    nameSource: null,
-  },
-  project: {
-    title: null,
-    titleSource: null,
-    description: null,
-    descriptionSource: null,
-    offerDescription: null,
-    offerDescriptionSource: null,
-  },
-  hourlyRate: null,
-  workItems: [],
-  materials: [],
+type UseProjectOptions = {
+  activeProject: ProjectWorkspace | null;
+  updateProject: (
+    projectId: string,
+    update: (workspace: ProjectWorkspace) => ProjectWorkspace,
+  ) => void;
 };
 
-export function useProject() {
-  const [project, setProject] = useState<ProjectDraft>(initialProject);
-  const [hasHydrated, setHasHydrated] = useState(false);
+export function useProject({ activeProject, updateProject }: UseProjectOptions) {
+  const project = activeProject?.draft ?? createInitialProjectDraft();
 
-  useEffect(() => {
-    const storedProject = readStoredValue(STORAGE_KEYS.projectDraft, ProjectDraftSchema);
-    let cancelled = false;
-
-    queueMicrotask(() => {
-      if (cancelled) {
-        return;
-      }
-
-      if (storedProject !== null) {
-        const hydratedProject = {
-          ...storedProject,
-          complete: storedProject.complete ?? false,
-          project: {
-            ...storedProject.project,
-            offerDescription:
-              storedProject.project.offerDescription ?? storedProject.project.description,
-            offerDescriptionSource:
-              storedProject.project.offerDescriptionSource ??
-              (storedProject.project.offerDescription ? "ai" : null),
-          },
-        } satisfies ProjectDraft;
-
-        setProject(hydratedProject);
-      }
-
-      setHasHydrated(true);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!hasHydrated) {
+  function setProject(action: SetStateAction<ProjectDraft>, projectId = activeProject?.id) {
+    if (projectId === undefined) {
       return;
     }
 
-    writeStoredValue(STORAGE_KEYS.projectDraft, project, ProjectDraftSchema);
-  }, [hasHydrated, project]);
+    updateProject(projectId, (workspace) => ({
+      ...workspace,
+      draft: typeof action === "function" ? action(workspace.draft) : action,
+    }));
+  }
 
   const hourlyRate = project.hourlyRate;
 
@@ -280,7 +233,7 @@ export function useProject() {
     }));
   }
 
-  function mergeProjectResponse(generatedResponse: ProjectResponse) {
+  function mergeProjectResponse(generatedResponse: ProjectResponse, projectId?: string) {
     setProject((currentProject) => {
       const customerName = generatedResponse.customer.name?.trim();
       const projectTitle = generatedResponse.project.title?.trim();
@@ -401,7 +354,7 @@ export function useProject() {
         workItems,
         materials,
       };
-    });
+    }, projectId);
   }
 
   function handleWorkItemDescriptionChange(workItem: WorkItem, description: string) {

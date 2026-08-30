@@ -1,25 +1,28 @@
 import { useState } from "react";
-import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { requestProjectUpdate } from "@/lib/ai/requestProjectUpdate";
-import { STORAGE_KEYS } from "@/lib/storage/browser-storage";
-import { ProjectMessagesSchema, type Message } from "@/schemas/message";
-import type { ProjectDraft, ProjectResponse } from "@/schemas/project";
+import { createInitialProjectDraft } from "@/lib/projects/initial-project";
+import type { Message } from "@/schemas/message";
+import type { ProjectResponse } from "@/schemas/project";
+import type { ProjectWorkspace } from "@/schemas/project-store";
 
 type UseProjectConversationOptions = {
-  project: ProjectDraft;
-  mergeProjectResponse: (response: ProjectResponse) => void;
+  activeProject: ProjectWorkspace | null;
+  createProject: () => ProjectWorkspace;
+  updateProject: (
+    projectId: string,
+    update: (workspace: ProjectWorkspace) => ProjectWorkspace,
+  ) => void;
+  mergeProjectResponse: (response: ProjectResponse, projectId?: string) => void;
 };
 
 export function useProjectConversation({
-  project,
+  activeProject,
+  createProject,
+  updateProject,
   mergeProjectResponse,
 }: UseProjectConversationOptions) {
   const [messageDraft, setMessageDraft] = useState("");
-  const [messages, setMessages] = useLocalStorageState<Message[]>({
-    key: STORAGE_KEYS.projectMessages,
-    schema: ProjectMessagesSchema,
-    initialValue: [],
-  });
+  const messages = activeProject?.messages ?? [];
   const [isAssistantResponding, setIsAssistantResponding] = useState(false);
   const [initialProjectError, setInitialProjectError] = useState<string | null>(null);
 
@@ -33,24 +36,52 @@ export function useProjectConversation({
       setInitialProjectError(null);
     }
 
-    const requestMessages: Message[] = [...messages, { role: "user", content: messageDraft }];
+    const workspace =
+      activeProject ??
+      ({
+        id: crypto.randomUUID(),
+        draft: createInitialProjectDraft(),
+        messages: [],
+        currentOffer: null,
+      } satisfies ProjectWorkspace);
+    const requestMessages: Message[] = [
+      ...workspace.messages,
+      { role: "user", content: messageDraft },
+    ];
+    const setMessages = (updatedMessages: Message[]) => {
+      updateProject(workspace.id, (currentWorkspace) => ({
+        ...currentWorkspace,
+        messages: updatedMessages,
+      }));
+    };
+
     if (!isInitialRequest) {
       setMessages(requestMessages);
     }
 
     try {
-      const response = await requestProjectUpdate({ messages: requestMessages, project });
-      mergeProjectResponse(response);
+      const response = await requestProjectUpdate({
+        messages: requestMessages,
+        project: workspace.draft,
+      });
+      const persistedWorkspace = activeProject ?? createProject();
+      mergeProjectResponse(response, persistedWorkspace.id);
 
       if (response.complete) {
         if (isInitialRequest) {
-          setMessages(requestMessages);
+          updateProject(persistedWorkspace.id, (currentWorkspace) => ({
+            ...currentWorkspace,
+            messages: requestMessages,
+          }));
         }
       } else {
-        setMessages([
-          ...requestMessages,
-          { role: "assistant", content: response.questions.join("\n") },
-        ]);
+        updateProject(persistedWorkspace.id, (currentWorkspace) => ({
+          ...currentWorkspace,
+          messages: [
+            ...requestMessages,
+            { role: "assistant", content: response.questions.join("\n") },
+          ],
+        }));
       }
 
       setMessageDraft("");
