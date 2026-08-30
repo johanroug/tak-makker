@@ -33,10 +33,7 @@ export default function Home() {
   const companyProfileHook = useCompanyProfile();
 
   useEffect(() => {
-    const storedMessages = readStoredValue(
-      STORAGE_KEYS.projectMessages,
-      ProjectMessagesSchema,
-    );
+    const storedMessages = readStoredValue(STORAGE_KEYS.projectMessages, ProjectMessagesSchema);
     let cancelled = false;
 
     queueMicrotask(() => {
@@ -231,7 +228,10 @@ export default function Home() {
                 onSubmit={() => sendProjectMessage(true)}
               />
               {initialProjectError && (
-                <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800" role="alert">
+                <p
+                  className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+                  role="alert"
+                >
                   {initialProjectError}
                 </p>
               )}
@@ -268,9 +268,7 @@ export default function Home() {
                 workItems={projectManagerHook.project.workItems}
                 materials={projectManagerHook.project.materials}
                 hourlyRate={projectManagerHook.project.hourlyRate}
-                hasIncompleteAcceptedMaterials={
-                  projectManagerHook.hasIncompleteAcceptedMaterials
-                }
+                hasIncompleteAcceptedMaterials={projectManagerHook.hasIncompleteAcceptedMaterials}
                 onWorkItemChange={projectManagerHook.handleWorkItemChange}
                 onEstimatedHoursChange={projectManagerHook.handleEstimatedHoursChange}
                 onWorkItemDescriptionChange={projectManagerHook.handleWorkItemDescriptionChange}
