@@ -97,12 +97,7 @@ export function createOfferFromProject({
   try {
     const offer = buildOfferSnapshot({
       id: crypto.randomUUID(),
-      company: { ...companyProfile },
-      customer: { name: customerName },
-      project: {
-        title: projectTitle,
-        description: projectDescription,
-      },
+      companyProfile,
       projectDraft,
       calculations,
     });

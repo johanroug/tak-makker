@@ -1,4 +1,5 @@
 import { OfferSchema, type Offer } from "@/schemas/offer";
+import type { CompanyProfile } from "@/schemas/company-profile";
 import type { ProjectDraft } from "@/schemas/project";
 import { isWorkItemIncluded } from "@/lib/work-item-selection";
 
@@ -12,33 +13,29 @@ export type OfferCalculationValues = {
 
 type BuildOfferSnapshotParams = {
   id: string;
-  company: Offer["company"];
-  customer: Offer["customer"];
-  project: Offer["project"];
+  companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   calculations: OfferCalculationValues;
 };
 
-export function buildOfferSnapshot({
-  id,
-  company,
-  customer,
-  project,
+export function buildOfferContent({
+  companyProfile,
   projectDraft,
   calculations,
-}: BuildOfferSnapshotParams): Offer {
+}: Omit<BuildOfferSnapshotParams, "id">) {
+  const customerName = projectDraft.customer.name?.trim() ?? "";
+  const projectTitle = projectDraft.project.title?.trim() ?? "";
   const hourlyRate = projectDraft.hourlyRate;
   const offerDescription =
     projectDraft.project.offerDescription?.trim() ??
     projectDraft.project.description?.trim() ??
     "";
 
-  const offer = {
-    id,
-    company: { ...company },
-    customer,
+  return {
+    company: { ...companyProfile },
+    customer: { name: customerName },
     project: {
-      ...project,
+      title: projectTitle,
       description: offerDescription,
     },
     workItems: projectDraft.workItems
@@ -76,6 +73,18 @@ export function buildOfferSnapshot({
       vatAmount: calculations.vatAmount,
       total: calculations.finalTotal,
     },
+  };
+}
+
+export function buildOfferSnapshot({
+  id,
+  companyProfile,
+  projectDraft,
+  calculations,
+}: BuildOfferSnapshotParams): Offer {
+  const offer = {
+    id,
+    ...buildOfferContent({ companyProfile, projectDraft, calculations }),
   };
 
   return OfferSchema.parse(offer);

@@ -124,6 +124,7 @@ export default function Home() {
                 companyProfile={companyProfileHook.companyProfile}
                 projectDraft={projectManagerHook.project}
                 currentOffer={offerHook.offer}
+                hasChangesSinceFinalization={offerHook.hasChangesSinceFinalization}
                 totalLaborPrice={projectManagerHook.totalLaborPrice}
                 totalMaterialPrice={projectManagerHook.totalMaterialPrice}
                 subtotal={projectManagerHook.subtotal}

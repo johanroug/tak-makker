@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createOfferFromProject } from "@/lib/offers/createOfferFromProject";
+import { hasOfferChangedSinceFinalization } from "@/lib/offers/hasOfferChangedSinceFinalization";
 import type { CompanyProfile } from "@/schemas/company-profile";
 import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
@@ -32,6 +33,12 @@ export function useOffer({
   calculations,
 }: UseOfferOptions) {
   const offer: Offer | null = activeProject?.currentOffer ?? null;
+  const hasChangesSinceFinalization = hasOfferChangedSinceFinalization({
+    companyProfile,
+    projectDraft,
+    calculations,
+    currentOffer: offer,
+  });
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
   function createOffer() {
@@ -51,5 +58,5 @@ export function useOffer({
     }
   }
 
-  return { offer, validationMessage, createOffer };
+  return { offer, hasChangesSinceFinalization, validationMessage, createOffer };
 }

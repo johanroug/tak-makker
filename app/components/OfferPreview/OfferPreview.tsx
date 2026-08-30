@@ -12,6 +12,7 @@ type OfferPreviewProps = {
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   currentOffer: OfferSnapshot | null;
+  hasChangesSinceFinalization: boolean;
   totalLaborPrice: number | null;
   totalMaterialPrice: number;
   subtotal: number | null;
@@ -30,6 +31,7 @@ export default function OfferPreview({
   companyProfile,
   projectDraft,
   currentOffer,
+  hasChangesSinceFinalization,
   totalLaborPrice,
   totalMaterialPrice,
   subtotal,
@@ -102,13 +104,22 @@ export default function OfferPreview({
               )}
             </div>
 
-            {isOfferFinalized && (
+            {isOfferFinalized && !hasChangesSinceFinalization && (
               <div
                 className="mb-3 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-xs font-medium text-emerald-800"
                 aria-live="polite"
               >
                 <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
                 Tilbud færdiggjort
+              </div>
+            )}
+
+            {hasChangesSinceFinalization && (
+              <div
+                className="mb-3 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs font-medium text-amber-900"
+                aria-live="polite"
+              >
+                Tilbuddet er ændret siden færdiggørelse
               </div>
             )}
 
@@ -318,7 +329,7 @@ export default function OfferPreview({
             </div>
           </div>
 
-          {!isOfferFinalized && validationMessage && (
+          {(!isOfferFinalized || hasChangesSinceFinalization) && validationMessage && (
             <p
               className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
               role="alert"
@@ -327,7 +338,9 @@ export default function OfferPreview({
             </p>
           )}
 
-          {!isOfferFinalized && isConfirmingIncompleteFinalization && !isProjectComplete && (
+          {(!isOfferFinalized || hasChangesSinceFinalization) &&
+            isConfirmingIncompleteFinalization &&
+            !isProjectComplete && (
             <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
               <p className="leading-6">
                 Tak Makker mangler stadig oplysninger om projektet. Du kan godt færdiggøre
@@ -355,7 +368,8 @@ export default function OfferPreview({
             </div>
           )}
 
-          {!isConfirmingIncompleteFinalization && (
+          {(!isOfferFinalized || hasChangesSinceFinalization) &&
+            !isConfirmingIncompleteFinalization && (
             <button
               type="button"
               onClick={() => {
