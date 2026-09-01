@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createOfferFromProject } from "@/lib/offers/createOfferFromProject";
 import { hasOfferChangedSinceFinalization } from "@/lib/offers/hasOfferChangedSinceFinalization";
+import { downloadOfferPdf } from "@/lib/offers/downloadOfferPdf";
 import type { CompanyProfile } from "@/schemas/company-profile";
 import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
@@ -40,6 +41,8 @@ export function useOffer({
     currentOffer: offer,
   });
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   function createOffer() {
     const result = createOfferFromProject({ companyProfile, projectDraft, calculations });
@@ -58,5 +61,27 @@ export function useOffer({
     }
   }
 
-  return { offer, hasChangesSinceFinalization, validationMessage, createOffer };
+  async function downloadPdf() {
+    if (offer === null || isDownloadingPdf) return;
+
+    setIsDownloadingPdf(true);
+    setPdfError(null);
+    try {
+      await downloadOfferPdf(offer);
+    } catch {
+      setPdfError("PDF-filen kunne ikke hentes. Prøv igen.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  }
+
+  return {
+    offer,
+    hasChangesSinceFinalization,
+    validationMessage,
+    createOffer,
+    downloadPdf,
+    isDownloadingPdf,
+    pdfError,
+  };
 }

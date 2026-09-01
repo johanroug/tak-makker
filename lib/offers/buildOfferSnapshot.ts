@@ -84,6 +84,7 @@ export function buildOfferSnapshot({
 }: BuildOfferSnapshotParams): Offer {
   const offer = {
     id,
+    createdAt: new Date().toISOString(),
     ...buildOfferContent({ companyProfile, projectDraft, calculations }),
   };
 

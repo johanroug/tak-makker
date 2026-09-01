@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { CompanyProfileSchema, type CompanyProfile } from "@/schemas/company-profile";
-import {
-  readStoredValue,
-  STORAGE_KEYS,
-  writeStoredValue,
-} from "@/lib/storage/browser-storage";
+import { readStoredValue, STORAGE_KEYS, writeStoredValue } from "@/lib/storage/browser-storage";
 
 const initialCompanyProfile: CompanyProfile = {
   companyName: "",
@@ -16,15 +12,11 @@ const initialCompanyProfile: CompanyProfile = {
 };
 
 export function useCompanyProfile() {
-  const [companyProfile, setCompanyProfile] =
-    useState<CompanyProfile>(initialCompanyProfile);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>(initialCompanyProfile);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
-    const storedCompanyProfile = readStoredValue(
-      STORAGE_KEYS.companyProfile,
-      CompanyProfileSchema,
-    );
+    const storedCompanyProfile = readStoredValue(STORAGE_KEYS.companyProfile, CompanyProfileSchema);
     let cancelled = false;
 
     queueMicrotask(() => {
@@ -49,11 +41,7 @@ export function useCompanyProfile() {
       return;
     }
 
-    writeStoredValue(
-      STORAGE_KEYS.companyProfile,
-      companyProfile,
-      CompanyProfileSchema,
-    );
+    writeStoredValue(STORAGE_KEYS.companyProfile, companyProfile, CompanyProfileSchema);
   }, [companyProfile, hasHydrated]);
 
   function handleCompanyNameChange(companyName: string) {
@@ -78,9 +66,7 @@ export function useCompanyProfile() {
 
   function handleDefaultHourlyRateChange(defaultHourlyRate: number | null) {
     const validDefaultHourlyRate =
-      defaultHourlyRate !== null &&
-      Number.isFinite(defaultHourlyRate) &&
-      defaultHourlyRate > 0
+      defaultHourlyRate !== null && Number.isFinite(defaultHourlyRate) && defaultHourlyRate > 0
         ? defaultHourlyRate
         : null;
 

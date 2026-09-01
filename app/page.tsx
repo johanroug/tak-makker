@@ -141,6 +141,9 @@ export default function Home() {
                   offerHook.offer === null ? "Færdiggør tilbud" : "Færdiggør ny version"
                 }
                 validationMessage={offerHook.validationMessage}
+                onDownloadPdf={offerHook.downloadPdf}
+                isDownloadingPdf={offerHook.isDownloadingPdf}
+                pdfError={offerHook.pdfError}
               />
             </section>
 

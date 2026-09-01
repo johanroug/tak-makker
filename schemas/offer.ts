@@ -5,6 +5,7 @@ const MoneySchema = z.number().finite().nonnegative();
 
 export const OfferSchema = z.object({
   id: z.string(),
+  createdAt: z.string().datetime().nullable().default(null),
 
   company: CompanyProfileSchema,
 

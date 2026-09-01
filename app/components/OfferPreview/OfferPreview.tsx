@@ -25,6 +25,9 @@ type OfferPreviewProps = {
   onCreateOffer: () => void;
   offerActionLabel: string;
   validationMessage: string | null;
+  onDownloadPdf: () => void;
+  isDownloadingPdf: boolean;
+  pdfError: string | null;
 };
 
 export default function OfferPreview({
@@ -44,6 +47,9 @@ export default function OfferPreview({
   onCreateOffer,
   offerActionLabel,
   validationMessage,
+  onDownloadPdf,
+  isDownloadingPdf,
+  pdfError,
 }: OfferPreviewProps) {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editingWorkItemId, setEditingWorkItemId] = useState<string | null>(null);
@@ -384,6 +390,27 @@ export default function OfferPreview({
             >
               {offerActionLabel}
             </button>
+          )}
+
+          {isOfferFinalized && (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={onDownloadPdf}
+                disabled={isDownloadingPdf}
+                className="primary-button w-full disabled:cursor-wait disabled:opacity-60"
+              >
+                {isDownloadingPdf ? "Genererer PDF…" : "Hent PDF"}
+              </button>
+              {pdfError && (
+                <p
+                  className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+                  role="alert"
+                >
+                  {pdfError}
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}

@@ -21,8 +21,9 @@ export function hasOfferChangedSinceFinalization({
 }: HasOfferChangedParams): boolean {
   if (currentOffer === null) return false;
 
-  const { id: currentOfferId, ...currentContent } = currentOffer;
+  const { id: currentOfferId, createdAt: currentOfferCreatedAt, ...currentContent } = currentOffer;
   void currentOfferId;
+  void currentOfferCreatedAt;
   const liveContent = buildOfferContent({ companyProfile, projectDraft, calculations });
 
   return JSON.stringify(liveContent) !== JSON.stringify(currentContent);
