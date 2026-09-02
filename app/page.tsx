@@ -12,6 +12,7 @@ import OfferPreview from "./components/OfferPreview/OfferPreview";
 import ProjectMessageInput from "./components/ProjectMessageInput/ProjectMessageInput";
 import ProjectNavigation from "./components/ProjectNavigation/ProjectNavigation";
 import SidePanel from "./components/SidePanel/SidePanel";
+import { SupabaseTest } from "@/app/components/SupabaseTest";
 
 export default function Home() {
   const companyProfileHook = useCompanyProfile();
@@ -70,6 +71,7 @@ export default function Home() {
 
   return (
     <main className={`${styles.page} ${conversationStarted ? styles.conversationStarted : ""}`}>
+      <SupabaseTest />
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.title}>Tak Makker</h1>
