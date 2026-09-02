@@ -24,10 +24,10 @@ export default function Home() {
   });
   const conversationHook = useProjectConversation({
     activeProject: projectStoreHook.activeProject,
+    prepareProject: projectStoreHook.prepareProject,
     createProject: projectStoreHook.createProject,
     updateProject: projectStoreHook.updateProject,
     mergeProjectResponse: projectManagerHook.mergeProjectResponse,
-    defaultHourlyRate: companyProfileHook.companyProfile.defaultHourlyRate,
   });
   const offerHook = useOffer({
     companyProfile: companyProfileHook.companyProfile,
@@ -45,6 +45,7 @@ export default function Home() {
 
   const projectHasData =
     projectManagerHook.project.customer.name !== null ||
+    projectManagerHook.project.customer.address !== null ||
     projectManagerHook.project.project.title !== null ||
     projectManagerHook.project.project.description !== null ||
     projectManagerHook.project.project.offerDescription !== null ||
@@ -123,6 +124,7 @@ export default function Home() {
               <OfferPreview
                 companyProfile={companyProfileHook.companyProfile}
                 projectDraft={projectManagerHook.project}
+                projectNumber={projectStoreHook.activeProject?.projectNumber ?? ""}
                 currentOffer={offerHook.offer}
                 hasChangesSinceFinalization={offerHook.hasChangesSinceFinalization}
                 totalLaborPrice={projectManagerHook.totalLaborPrice}
@@ -131,6 +133,7 @@ export default function Home() {
                 vatAmount={projectManagerHook.vatAmount}
                 finalTotal={projectManagerHook.finalTotal}
                 onCustomerNameChange={projectManagerHook.handleCustomerNameChange}
+                onCustomerAddressChange={projectManagerHook.handleCustomerAddressChange}
                 onProjectTitleChange={projectManagerHook.handleProjectTitleChange}
                 onProjectOfferDescriptionChange={
                   projectManagerHook.handleProjectOfferDescriptionChange

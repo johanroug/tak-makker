@@ -47,6 +47,70 @@
   box-shadow: 0 12px 28px rgb(0 0 0 / 12%);
 }
 
+.searchLabel {
+  display: block;
+  padding: 2px 2px 8px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 9px;
+  border: 1px solid #d8d6cf;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.groupedList {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.yearHeading,
+.monthHeading {
+  margin: 0;
+  color: #555;
+  font-weight: 700;
+}
+
+.yearHeading {
+  padding: 7px 8px 2px;
+  font-size: 13px;
+}
+
+.monthHeading {
+  padding: 5px 10px 2px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.monthGroup .projectList {
+  padding-bottom: 2px;
+}
+
+.searchResultText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.searchResultText small {
+  overflow: hidden;
+  color: #666;
+  font-size: 11px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyResults {
+  margin: 0;
+  padding: 12px 10px 16px;
+  color: #666;
+  font-size: 13px;
+}
+
 .projectList {
   max-height: 280px;
   margin: 0;

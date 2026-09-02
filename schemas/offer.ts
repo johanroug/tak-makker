@@ -6,11 +6,13 @@ const MoneySchema = z.number().finite().nonnegative();
 export const OfferSchema = z.object({
   id: z.string(),
   createdAt: z.string().datetime().nullable().default(null),
+  projectNumber: z.string().default(""),
 
   company: CompanyProfileSchema,
 
   customer: z.object({
     name: z.string(),
+    address: z.string().default(""),
   }),
 
   project: z.object({

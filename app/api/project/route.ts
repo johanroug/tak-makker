@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         {
           role: "system",
           content: createProjectDetailsContext({
-            customer: body.customer ?? { name: null },
+            customer: body.customer ?? { name: null, address: null },
             project: body.project ?? {
               title: null,
               description: null,

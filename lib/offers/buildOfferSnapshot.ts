@@ -13,12 +13,14 @@ export type OfferCalculationValues = {
 
 type BuildOfferSnapshotParams = {
   id: string;
+  projectNumber: string;
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   calculations: OfferCalculationValues;
 };
 
 export function buildOfferContent({
+  projectNumber,
   companyProfile,
   projectDraft,
   calculations,
@@ -32,8 +34,12 @@ export function buildOfferContent({
     "";
 
   return {
+    projectNumber,
     company: { ...companyProfile },
-    customer: { name: customerName },
+    customer: {
+      name: customerName,
+      address: projectDraft.customer.address?.trim() ?? "",
+    },
     project: {
       title: projectTitle,
       description: offerDescription,
@@ -78,6 +84,7 @@ export function buildOfferContent({
 
 export function buildOfferSnapshot({
   id,
+  projectNumber,
   companyProfile,
   projectDraft,
   calculations,
@@ -85,7 +92,7 @@ export function buildOfferSnapshot({
   const offer = {
     id,
     createdAt: new Date().toISOString(),
-    ...buildOfferContent({ companyProfile, projectDraft, calculations }),
+    ...buildOfferContent({ projectNumber, companyProfile, projectDraft, calculations }),
   };
 
   return OfferSchema.parse(offer);

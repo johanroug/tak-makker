@@ -206,10 +206,20 @@ export async function generateOfferPdf(offer: Offer): Promise<Uint8Array> {
     lineHeight: 14,
     color: MUTED_COLOR,
   });
+  drawTextBlock(context, `Projektnr.: ${offer.projectNumber || "Ikke angivet"}`, {
+    size: 9.5,
+    lineHeight: 14,
+    color: MUTED_COLOR,
+  });
 
   context.y -= 20;
   drawTextBlock(context, offer.project.title, { font: bold, size: 18, lineHeight: 25 });
   drawTextBlock(context, `Kunde: ${offer.customer.name}`, {
+    size: 10,
+    lineHeight: 16,
+    color: MUTED_COLOR,
+  });
+  drawTextBlock(context, `Adresse: ${offer.customer.address || "Ikke angivet"}`, {
     size: 10,
     lineHeight: 16,
     color: MUTED_COLOR,

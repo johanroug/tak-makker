@@ -11,6 +11,7 @@ import { hasCompleteMaterialPricing } from "@/lib/material-pricing";
 type OfferPreviewProps = {
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
+  projectNumber: string;
   currentOffer: OfferSnapshot | null;
   hasChangesSinceFinalization: boolean;
   totalLaborPrice: number | null;
@@ -19,6 +20,7 @@ type OfferPreviewProps = {
   vatAmount: number | null;
   finalTotal: number | null;
   onCustomerNameChange: (name: string) => void;
+  onCustomerAddressChange: (address: string) => void;
   onProjectTitleChange: (title: string) => void;
   onProjectOfferDescriptionChange: (description: string) => void;
   onWorkItemDescriptionChange: (workItem: WorkItem, description: string) => void;
@@ -33,6 +35,7 @@ type OfferPreviewProps = {
 export default function OfferPreview({
   companyProfile,
   projectDraft,
+  projectNumber,
   currentOffer,
   hasChangesSinceFinalization,
   totalLaborPrice,
@@ -41,6 +44,7 @@ export default function OfferPreview({
   vatAmount,
   finalTotal,
   onCustomerNameChange,
+  onCustomerAddressChange,
   onProjectTitleChange,
   onProjectOfferDescriptionChange,
   onWorkItemDescriptionChange,
@@ -136,8 +140,16 @@ export default function OfferPreview({
                   {projectDraft.project.title || "Projekt uden titel"}
                 </h2>
                 <p className="text-sm text-neutral-600">
-                  Kundenavn: <span className="font-medium">
+                  Projektnr.: <span className="font-medium">{projectNumber}</span>
+                </p>
+                <p className="text-sm text-neutral-600">
+                  Kunde: <span className="font-medium">
                     {projectDraft.customer.name || "Ikke angivet"}
+                  </span>
+                </p>
+                <p className="text-sm text-neutral-600">
+                  Adresse: <span className="font-medium">
+                    {projectDraft.customer.address || "Ikke angivet"}
                   </span>
                 </p>
               </div>
@@ -206,6 +218,19 @@ export default function OfferPreview({
                   placeholder="Tilbudsbeskrivelse"
                   className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
                   rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Kundeadresse
+                </label>
+                <input
+                  type="text"
+                  value={projectDraft.customer.address ?? ""}
+                  onChange={(e) => onCustomerAddressChange(e.target.value)}
+                  placeholder="Kundeadresse"
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-md text-sm"
                 />
               </div>
             </div>

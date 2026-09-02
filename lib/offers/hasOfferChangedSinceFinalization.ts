@@ -7,6 +7,7 @@ import {
 } from "./buildOfferSnapshot";
 
 type HasOfferChangedParams = {
+  projectNumber: string;
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   calculations: OfferCalculationValues;
@@ -14,6 +15,7 @@ type HasOfferChangedParams = {
 };
 
 export function hasOfferChangedSinceFinalization({
+  projectNumber,
   companyProfile,
   projectDraft,
   calculations,
@@ -24,7 +26,12 @@ export function hasOfferChangedSinceFinalization({
   const { id: currentOfferId, createdAt: currentOfferCreatedAt, ...currentContent } = currentOffer;
   void currentOfferId;
   void currentOfferCreatedAt;
-  const liveContent = buildOfferContent({ companyProfile, projectDraft, calculations });
+  const liveContent = buildOfferContent({
+    projectNumber,
+    companyProfile,
+    projectDraft,
+    calculations,
+  });
 
   return JSON.stringify(liveContent) !== JSON.stringify(currentContent);
 }

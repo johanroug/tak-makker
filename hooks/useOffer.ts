@@ -35,6 +35,7 @@ export function useOffer({
 }: UseOfferOptions) {
   const offer: Offer | null = activeProject?.currentOffer ?? null;
   const hasChangesSinceFinalization = hasOfferChangedSinceFinalization({
+    projectNumber: activeProject?.projectNumber ?? "",
     companyProfile,
     projectDraft,
     calculations,
@@ -45,7 +46,12 @@ export function useOffer({
   const [pdfError, setPdfError] = useState<string | null>(null);
 
   function createOffer() {
-    const result = createOfferFromProject({ companyProfile, projectDraft, calculations });
+    const result = createOfferFromProject({
+      projectNumber: activeProject?.projectNumber ?? "",
+      companyProfile,
+      projectDraft,
+      calculations,
+    });
 
     if (!result.success) {
       setValidationMessage(result.message);

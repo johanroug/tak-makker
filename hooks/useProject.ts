@@ -194,8 +194,20 @@ export function useProject({ activeProject, updateProject }: UseProjectOptions) 
     setProject((currentProject) => ({
       ...currentProject,
       customer: {
+        ...currentProject.customer,
         name,
         nameSource: "user",
+      },
+    }));
+  }
+
+  function handleCustomerAddressChange(address: string) {
+    setProject((currentProject) => ({
+      ...currentProject,
+      customer: {
+        ...currentProject.customer,
+        address,
+        addressSource: "user",
       },
     }));
   }
@@ -236,6 +248,7 @@ export function useProject({ activeProject, updateProject }: UseProjectOptions) 
   function mergeProjectResponse(generatedResponse: ProjectResponse, projectId?: string) {
     setProject((currentProject) => {
       const customerName = generatedResponse.customer.name?.trim();
+      const customerAddress = generatedResponse.customer.address?.trim();
       const projectTitle = generatedResponse.project.title?.trim();
       const projectDescription = generatedResponse.project.description?.trim();
       const projectOfferDescription = generatedResponse.project.offerDescription?.trim();
@@ -318,6 +331,16 @@ export function useProject({ activeProject, updateProject }: UseProjectOptions) 
               : customerName
                 ? "ai"
                 : currentProject.customer.nameSource,
+          address:
+            currentProject.customer.addressSource === "user"
+              ? currentProject.customer.address
+              : customerAddress || currentProject.customer.address,
+          addressSource:
+            currentProject.customer.addressSource === "user"
+              ? "user"
+              : customerAddress
+                ? "ai"
+                : currentProject.customer.addressSource,
         },
         project: {
           title:
@@ -406,6 +429,7 @@ export function useProject({ activeProject, updateProject }: UseProjectOptions) 
     handleMaterialQuantityChange,
     handleMaterialUnitChange,
     handleCustomerNameChange,
+    handleCustomerAddressChange,
     handleProjectTitleChange,
     handleProjectDescriptionChange,
     handleProjectOfferDescriptionChange,

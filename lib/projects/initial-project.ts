@@ -6,6 +6,8 @@ export function createInitialProjectDraft(hourlyRate: number | null = null): Pro
     customer: {
       name: null,
       nameSource: null,
+      address: null,
+      addressSource: null,
     },
     project: {
       title: null,

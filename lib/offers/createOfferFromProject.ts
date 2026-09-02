@@ -9,6 +9,7 @@ import {
 } from "./buildOfferSnapshot";
 
 type CreateOfferFromProjectParams = {
+  projectNumber: string;
   companyProfile: CompanyProfile;
   projectDraft: ProjectDraft;
   calculations: OfferCalculationValues;
@@ -19,6 +20,7 @@ type CreateOfferFromProjectResult =
   | { success: false; message: string };
 
 export function createOfferFromProject({
+  projectNumber,
   companyProfile,
   projectDraft,
   calculations,
@@ -97,6 +99,7 @@ export function createOfferFromProject({
   try {
     const offer = buildOfferSnapshot({
       id: crypto.randomUUID(),
+      projectNumber,
       companyProfile,
       projectDraft,
       calculations,

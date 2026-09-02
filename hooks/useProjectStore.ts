@@ -1,6 +1,10 @@
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { createInitialProjectDraft } from "@/lib/projects/initial-project";
 import {
+  allocateProjectNumber,
+  getProjectCreationYear,
+} from "@/lib/projects/project-number";
+import {
   readStoredValue,
   removeStoredValue,
   STORAGE_KEYS,
@@ -30,6 +34,7 @@ function migrateLegacyProjectStore(): ProjectStore | null {
   }
 
   const id = crypto.randomUUID();
+  const createdAt = currentOffer?.createdAt ?? new Date().toISOString();
   const migratedDraft = draft
     ? {
         ...draft,
@@ -47,6 +52,8 @@ function migrateLegacyProjectStore(): ProjectStore | null {
     projects: [
       {
         id,
+        createdAt,
+        projectNumber: `${getProjectCreationYear(createdAt)}-0001`,
         draft: migratedDraft,
         messages: messages ?? [],
         currentOffer,
@@ -84,13 +91,20 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
   const activeProject =
     projectStore.projects.find((project) => project.id === projectStore.activeProjectId) ?? null;
 
-  function createProject(): ProjectWorkspace {
-    const workspace: ProjectWorkspace = {
+  function prepareProject(): ProjectWorkspace {
+    const createdAt = new Date().toISOString();
+    return {
       id: crypto.randomUUID(),
+      createdAt,
+      projectNumber: allocateProjectNumber(createdAt, projectStore.projects),
       draft: createInitialProjectDraft(defaultHourlyRate),
       messages: [],
       currentOffer: null,
     };
+  }
+
+  function createProject(preparedWorkspace?: ProjectWorkspace): ProjectWorkspace {
+    const workspace = preparedWorkspace ?? prepareProject();
 
     setProjectStore((currentStore) => ({
       activeProjectId: workspace.id,
@@ -125,6 +139,7 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
   return {
     projectStore,
     activeProject,
+    prepareProject,
     createProject,
     updateProject,
     setActiveProjectId,

@@ -1,32 +1,36 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { requestProjectUpdate } from "@/lib/ai/requestProjectUpdate";
-import { createInitialProjectDraft } from "@/lib/projects/initial-project";
 import type { Message } from "@/schemas/message";
 import type { ProjectResponse } from "@/schemas/project";
 import type { ProjectWorkspace } from "@/schemas/project-store";
 
 type UseProjectConversationOptions = {
   activeProject: ProjectWorkspace | null;
-  createProject: () => ProjectWorkspace;
+  prepareProject: () => ProjectWorkspace;
+  createProject: (preparedWorkspace?: ProjectWorkspace) => ProjectWorkspace;
   updateProject: (
     projectId: string,
     update: (workspace: ProjectWorkspace) => ProjectWorkspace,
   ) => void;
   mergeProjectResponse: (response: ProjectResponse, projectId?: string) => void;
-  defaultHourlyRate: number | null;
 };
 
 export function useProjectConversation({
   activeProject,
+  prepareProject,
   createProject,
   updateProject,
   mergeProjectResponse,
-  defaultHourlyRate,
 }: UseProjectConversationOptions) {
   const [messageDraft, setMessageDraft] = useState("");
   const messages = activeProject?.messages ?? [];
   const [isAssistantResponding, setIsAssistantResponding] = useState(false);
   const [initialProjectError, setInitialProjectError] = useState<string | null>(null);
+  const pendingInitialWorkspaceRef = useRef<ProjectWorkspace | null>(null);
+
+  useEffect(() => {
+    if (activeProject !== null) pendingInitialWorkspaceRef.current = null;
+  }, [activeProject]);
 
   async function sendMessage(isInitialRequest = false) {
     if (isAssistantResponding) {
@@ -38,14 +42,12 @@ export function useProjectConversation({
       setInitialProjectError(null);
     }
 
-    const workspace =
-      activeProject ??
-      ({
-        id: crypto.randomUUID(),
-        draft: createInitialProjectDraft(defaultHourlyRate),
-        messages: [],
-        currentOffer: null,
-      } satisfies ProjectWorkspace);
+    if (activeProject === null && pendingInitialWorkspaceRef.current === null) {
+      pendingInitialWorkspaceRef.current = prepareProject();
+    }
+
+    const workspace = activeProject ?? pendingInitialWorkspaceRef.current;
+    if (workspace === null) return;
     const requestMessages: Message[] = [
       ...workspace.messages,
       { role: "user", content: messageDraft },
@@ -66,7 +68,8 @@ export function useProjectConversation({
         messages: requestMessages,
         project: workspace.draft,
       });
-      const persistedWorkspace = activeProject ?? createProject();
+      const persistedWorkspace = activeProject ?? createProject(workspace);
+      pendingInitialWorkspaceRef.current = null;
       mergeProjectResponse(response, persistedWorkspace.id);
 
       if (response.complete) {
