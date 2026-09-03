@@ -10,7 +10,9 @@ export function SupabaseTest() {
 
       const { data, error } = await supabase
         .from("companies")
-        .select("*");
+        .select("*")
+        .eq("id", "4eb2b39d-f7ea-492a-9952-f68c86918c0d")
+        .single();
 
       console.log("companies", data);
       console.log("error", error);
