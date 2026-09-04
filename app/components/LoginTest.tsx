@@ -46,7 +46,8 @@ export function LoginTest() {
 
     const { data, error } = await supabase
       .from("company_members")
-      .select(`
+      .select(
+        `
         company_id,
         companies (
           id,
@@ -57,10 +58,24 @@ export function LoginTest() {
           email,
           default_hourly_rate
         )
-      `)
+      `,
+      )
       .eq("user_id", user.id)
       .single();
 
+    const company = data?.companies;
+    if (company) {
+      const companyProfile = {
+        companyName: company.name,
+        cvr: company.cvr,
+        contactName: company.contact_name,
+        phone: company.phone,
+        email: company.email,
+        defaultHourlyRate: company.default_hourly_rate,
+      };
+
+      console.log("company profile", companyProfile);
+    }
     console.log("current company", data);
     console.log("current company error", error);
   }
