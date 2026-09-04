@@ -5,6 +5,7 @@ import { aiInstructions } from "@/lib/ai/instructions";
 import { createWorkItemsContext } from "@/lib/ai/work-items-context";
 import { createMaterialsContext } from "@/lib/ai/materials-context";
 import { createProjectDetailsContext } from "@/lib/ai/project-details-context";
+import { createClient } from "@/lib/supabase/server";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,6 +13,17 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
+    // NYT: Tjek at brugeren er logget ind
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     const response = await openai.responses.parse({
