@@ -15,7 +15,7 @@ export default function Conversation({ messages }: ConversationProps) {
             message.role === "user" ? "self-end " + styles.userMessage : "self-start"
           }`}
         >
-          <strong className="card-title">{message.role === "user" ? "Dig" : "Tak Makker"}</strong>
+          <strong className="card-title">{message.role === "user" ? "Dig" : "Din makker"}</strong>
 
           <p className={styles.messageText}>{message.content}</p>
         </div>

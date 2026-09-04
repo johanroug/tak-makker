@@ -31,6 +31,40 @@ export function LoginTest() {
     console.log("current user error", error);
   }
 
+  async function getCurrentCompany() {
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("user error", userError);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("company_members")
+      .select(`
+        company_id,
+        companies (
+          id,
+          name,
+          cvr,
+          contact_name,
+          phone,
+          email,
+          default_hourly_rate
+        )
+      `)
+      .eq("user_id", user.id)
+      .single();
+
+    console.log("current company", data);
+    console.log("current company error", error);
+  }
+
   return (
     <div>
       <input
@@ -53,6 +87,10 @@ export function LoginTest() {
 
       <button type="button" onClick={getCurrentUser}>
         Hent nuværende bruger
+      </button>
+
+      <button type="button" onClick={getCurrentCompany}>
+        Hent min virksomhed
       </button>
     </div>
   );
