@@ -9,6 +9,8 @@ type CompanyProfileFormProps = {
   onPhoneChange: (phone: string) => void;
   onEmailChange: (email: string) => void;
   onDefaultHourlyRateChange: (defaultHourlyRate: number | null) => void;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
 };
 
 export default function CompanyProfileForm({
@@ -19,6 +21,8 @@ export default function CompanyProfileForm({
   onPhoneChange,
   onEmailChange,
   onDefaultHourlyRateChange,
+  onSave,
+  isSaving,
 }: CompanyProfileFormProps) {
   return (
     <div className="card card-stack mt-3">
@@ -84,6 +88,16 @@ export default function CompanyProfileForm({
           <span>kr./time</span>
         </span>
       </label>
+
+      <button
+        type="button"
+        onClick={() => {
+          void onSave();
+        }}
+        disabled={isSaving}
+      >
+        {isSaving ? "Gemmer..." : "Gem"}
+      </button>
     </div>
   );
 }

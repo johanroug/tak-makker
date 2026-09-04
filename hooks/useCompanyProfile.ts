@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { CompanyProfileSchema, type CompanyProfile } from "@/schemas/company-profile";
-import { readStoredValue, STORAGE_KEYS, writeStoredValue } from "@/lib/storage/browser-storage";
+import { type CompanyProfile } from "@/schemas/company-profile";
+import { getCurrentCompanyProfile } from "@/lib/companies/getCurrentCompanyProfile";
+import { updateCurrentCompanyProfile } from "@/lib/companies/updateCurrentCompanyProfile";
 
 const initialCompanyProfile: CompanyProfile = {
   companyName: "",
@@ -13,36 +14,42 @@ const initialCompanyProfile: CompanyProfile = {
 
 export function useCompanyProfile() {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>(initialCompanyProfile);
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const storedCompanyProfile = readStoredValue(STORAGE_KEYS.companyProfile, CompanyProfileSchema);
     let cancelled = false;
 
-    queueMicrotask(() => {
+    async function loadCompanyProfile() {
+      const currentCompanyProfile = await getCurrentCompanyProfile();
+
       if (cancelled) {
         return;
       }
 
-      if (storedCompanyProfile !== null) {
-        setCompanyProfile(storedCompanyProfile);
+      if (currentCompanyProfile !== null) {
+        setCompanyProfile(currentCompanyProfile);
       }
 
-      setHasHydrated(true);
-    });
+      setHasLoaded(true);
+    }
+
+    loadCompanyProfile();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  useEffect(() => {
-    if (!hasHydrated) {
-      return;
-    }
+  async function saveCompanyProfile() {
+    setIsSaving(true);
 
-    writeStoredValue(STORAGE_KEYS.companyProfile, companyProfile, CompanyProfileSchema);
-  }, [companyProfile, hasHydrated]);
+    try {
+      await updateCurrentCompanyProfile(companyProfile);
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   function handleCompanyNameChange(companyName: string) {
     setCompanyProfile((currentProfile) => ({ ...currentProfile, companyName }));
@@ -78,11 +85,14 @@ export function useCompanyProfile() {
 
   return {
     companyProfile,
+    hasLoaded,
+    isSaving,
     handleCompanyNameChange,
     handleCvrChange,
     handleContactNameChange,
     handlePhoneChange,
     handleEmailChange,
     handleDefaultHourlyRateChange,
+    saveCompanyProfile,
   };
 }
