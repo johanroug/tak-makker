@@ -19,6 +19,7 @@ import { getCurrentCompanyId } from "@/lib/companies/getCurrentCompanyId";
 import { createProject as createProjectInDatabase } from "@/lib/projects/createProject";
 import { useEffect } from "react";
 import { updateProjectDraft } from "@/lib/projects/updateProjectDraft";
+import { saveProjectWorkItems } from "@/lib/projects/saveProjectWorkItems";
 
 const initialProjectStore: ProjectStore = {
   activeProjectId: null,
@@ -97,8 +98,11 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
     }
 
     const timeoutId = window.setTimeout(() => {
-      void updateProjectDraft(activeProject.id, activeProject.draft).catch((error) => {
-        console.error("Could not save project draft:", error);
+      void Promise.all([
+        updateProjectDraft(activeProject.id, activeProject.draft),
+        saveProjectWorkItems(activeProject.id, activeProject.draft.workItems),
+      ]).catch((error) => {
+        console.error("Could not save project:", error);
       });
     }, 500);
 
