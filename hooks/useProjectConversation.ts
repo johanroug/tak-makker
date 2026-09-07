@@ -8,7 +8,7 @@ type UseProjectConversationOptions = {
   activeProject: ProjectWorkspace | null;
   prepareProject: () => Promise<ProjectWorkspace>;
 
-  createProject: (preparedWorkspace?: ProjectWorkspace) => ProjectWorkspace;
+  createProject: (preparedWorkspace: ProjectWorkspace) => ProjectWorkspace;
   updateProject: (
     projectId: string,
     update: (workspace: ProjectWorkspace) => ProjectWorkspace,
