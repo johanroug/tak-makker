@@ -1,9 +1,6 @@
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { createInitialProjectDraft } from "@/lib/projects/initial-project";
-import {
-  allocateProjectNumber,
-  getProjectCreationYear,
-} from "@/lib/projects/project-number";
+import { getProjectCreationYear } from "@/lib/projects/project-number";
 import {
   readStoredValue,
   removeStoredValue,
@@ -18,6 +15,8 @@ import {
   type ProjectStore,
   type ProjectWorkspace,
 } from "@/schemas/project-store";
+import { getCurrentCompanyId } from "@/lib/companies/getCurrentCompanyId";
+import { createProject as createProjectInDatabase } from "@/lib/projects/createProject";
 
 const initialProjectStore: ProjectStore = {
   activeProjectId: null,
@@ -42,8 +41,7 @@ function migrateLegacyProjectStore(): ProjectStore | null {
           ...draft.project,
           offerDescription: draft.project.offerDescription ?? draft.project.description,
           offerDescriptionSource:
-            draft.project.offerDescriptionSource ??
-            (draft.project.offerDescription ? "ai" : null),
+            draft.project.offerDescriptionSource ?? (draft.project.offerDescription ? "ai" : null),
         },
       }
     : createInitialProjectDraft();
@@ -91,12 +89,19 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
   const activeProject =
     projectStore.projects.find((project) => project.id === projectStore.activeProjectId) ?? null;
 
-  function prepareProject(): ProjectWorkspace {
-    const createdAt = new Date().toISOString();
+  async function prepareProject(): Promise<ProjectWorkspace> {
+    const companyId = await getCurrentCompanyId();
+
+    if (companyId === null) {
+      throw new Error("Kunne ikke finde brugerens virksomhed.");
+    }
+
+    const createdProject = await createProjectInDatabase(companyId);
+
     return {
-      id: crypto.randomUUID(),
-      createdAt,
-      projectNumber: allocateProjectNumber(createdAt, projectStore.projects),
+      id: createdProject.id,
+      createdAt: createdProject.created_at,
+      projectNumber: createdProject.project_number,
       draft: createInitialProjectDraft(defaultHourlyRate),
       messages: [],
       currentOffer: null,

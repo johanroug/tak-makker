@@ -6,7 +6,8 @@ import type { ProjectWorkspace } from "@/schemas/project-store";
 
 type UseProjectConversationOptions = {
   activeProject: ProjectWorkspace | null;
-  prepareProject: () => ProjectWorkspace;
+  prepareProject: () => Promise<ProjectWorkspace>;
+
   createProject: (preparedWorkspace?: ProjectWorkspace) => ProjectWorkspace;
   updateProject: (
     projectId: string,
@@ -38,38 +39,47 @@ export function useProjectConversation({
     }
 
     setIsAssistantResponding(true);
+
     if (isInitialRequest) {
       setInitialProjectError(null);
     }
 
-    if (activeProject === null && pendingInitialWorkspaceRef.current === null) {
-      pendingInitialWorkspaceRef.current = prepareProject();
-    }
-
-    const workspace = activeProject ?? pendingInitialWorkspaceRef.current;
-    if (workspace === null) return;
-    const requestMessages: Message[] = [
-      ...workspace.messages,
-      { role: "user", content: messageDraft },
-    ];
-    const setMessages = (updatedMessages: Message[]) => {
-      updateProject(workspace.id, (currentWorkspace) => ({
-        ...currentWorkspace,
-        messages: updatedMessages,
-      }));
-    };
-
-    if (!isInitialRequest) {
-      setMessages(requestMessages);
-    }
-
     try {
+      if (activeProject === null && pendingInitialWorkspaceRef.current === null) {
+        pendingInitialWorkspaceRef.current = await prepareProject();
+      }
+
+      const workspace = activeProject ?? pendingInitialWorkspaceRef.current;
+
+      if (workspace === null) {
+        return;
+      }
+
+      const requestMessages: Message[] = [
+        ...workspace.messages,
+        { role: "user", content: messageDraft },
+      ];
+
+      const setMessages = (updatedMessages: Message[]) => {
+        updateProject(workspace.id, (currentWorkspace) => ({
+          ...currentWorkspace,
+          messages: updatedMessages,
+        }));
+      };
+
+      if (!isInitialRequest) {
+        setMessages(requestMessages);
+      }
+
       const response = await requestProjectUpdate({
         messages: requestMessages,
         project: workspace.draft,
       });
+
       const persistedWorkspace = activeProject ?? createProject(workspace);
+
       pendingInitialWorkspaceRef.current = null;
+
       mergeProjectResponse(response, persistedWorkspace.id);
 
       if (response.complete) {
@@ -84,7 +94,10 @@ export function useProjectConversation({
           ...currentWorkspace,
           messages: [
             ...requestMessages,
-            { role: "assistant", content: response.questions.join("\n") },
+            {
+              role: "assistant",
+              content: response.questions.join("\n"),
+            },
           ],
         }));
       }
@@ -92,6 +105,7 @@ export function useProjectConversation({
       setMessageDraft("");
     } catch (error) {
       console.error("Could not update project:", error);
+
       if (isInitialRequest) {
         setInitialProjectError("Tak Makker kunne ikke starte projektet. Prøv igen.");
       }
