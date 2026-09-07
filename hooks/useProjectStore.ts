@@ -106,7 +106,7 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
       window.clearTimeout(timeoutId);
     };
   }, [activeProject]);
-  
+
   async function prepareProject(): Promise<ProjectWorkspace> {
     const companyId = await getCurrentCompanyId();
 
@@ -118,7 +118,7 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
 
     return {
       id: createdProject.id,
-      createdAt: createdProject.created_at,
+      createdAt: new Date(createdProject.created_at).toISOString(),
       projectNumber: createdProject.project_number,
       draft: createInitialProjectDraft(defaultHourlyRate),
       messages: [],
@@ -126,15 +126,13 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
     };
   }
 
-  function createProject(preparedWorkspace?: ProjectWorkspace): ProjectWorkspace {
-    const workspace = preparedWorkspace ?? prepareProject();
-
+  function createProject(preparedWorkspace: ProjectWorkspace): ProjectWorkspace {
     setProjectStore((currentStore) => ({
-      activeProjectId: workspace.id,
-      projects: [...currentStore.projects, workspace],
+      activeProjectId: preparedWorkspace.id,
+      projects: [...currentStore.projects, preparedWorkspace],
     }));
 
-    return workspace;
+    return preparedWorkspace;
   }
 
   function updateProject(

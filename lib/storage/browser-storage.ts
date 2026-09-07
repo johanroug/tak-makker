@@ -37,14 +37,17 @@ export function writeStoredValue<T>(key: string, value: T, schema: z.ZodType<T>)
   const result = schema.safeParse(value);
 
   if (!result.success) {
+    console.error(`Could not write localStorage value for "${key}":`, result.error);
+
     return false;
   }
 
   try {
     window.localStorage.setItem(key, JSON.stringify(result.data));
     return true;
-  } catch {
-    // Browser storage can be unavailable or full. In-memory state remains usable.
+  } catch (error) {
+    console.error(`Could not write localStorage value for "${key}":`, error);
+
     return false;
   }
 }
