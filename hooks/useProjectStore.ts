@@ -17,6 +17,8 @@ import {
 } from "@/schemas/project-store";
 import { getCurrentCompanyId } from "@/lib/companies/getCurrentCompanyId";
 import { createProject as createProjectInDatabase } from "@/lib/projects/createProject";
+import { useEffect } from "react";
+import { updateProjectDraft } from "@/lib/projects/updateProjectDraft";
 
 const initialProjectStore: ProjectStore = {
   activeProjectId: null,
@@ -89,6 +91,22 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
   const activeProject =
     projectStore.projects.find((project) => project.id === projectStore.activeProjectId) ?? null;
 
+  useEffect(() => {
+    if (activeProject === null) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void updateProjectDraft(activeProject.id, activeProject.draft).catch((error) => {
+        console.error("Could not save project draft:", error);
+      });
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [activeProject]);
+  
   async function prepareProject(): Promise<ProjectWorkspace> {
     const companyId = await getCurrentCompanyId();
 
