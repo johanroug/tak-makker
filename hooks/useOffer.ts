@@ -6,6 +6,7 @@ import type { CompanyProfile } from "@/schemas/company-profile";
 import type { Offer } from "@/schemas/offer";
 import type { ProjectDraft } from "@/schemas/project";
 import type { ProjectWorkspace } from "@/schemas/project-store";
+import { saveOffer } from "@/lib/offers/saveOffer";
 
 type ProjectCalculations = {
   totalLaborPrice: number | null;
@@ -45,7 +46,7 @@ export function useOffer({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
-  function createOffer() {
+  async function createOffer() {
     const result = createOfferFromProject({
       projectNumber: activeProject?.projectNumber ?? "",
       companyProfile,
@@ -58,12 +59,22 @@ export function useOffer({
       return;
     }
 
+    if (activeProject === null) {
+      return;
+    }
+
     setValidationMessage(null);
-    if (activeProject !== null) {
+
+    try {
+      await saveOffer(activeProject.id, result.offer);
+
       updateProject(activeProject.id, (workspace) => ({
         ...workspace,
         currentOffer: result.offer,
       }));
+    } catch (error) {
+      console.error("Could not save offer:", error);
+      setValidationMessage("Tilbuddet kunne ikke gemmes. Prøv igen.");
     }
   }
 
