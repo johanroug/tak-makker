@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { requestProjectUpdate } from "@/lib/ai/requestProjectUpdate";
+import { saveProjectMessage } from "@/lib/projects/saveProjectMessage";
 import type { Message } from "@/schemas/message";
 import type { ProjectResponse } from "@/schemas/project";
 import type { ProjectWorkspace } from "@/schemas/project-store";
@@ -30,7 +31,9 @@ export function useProjectConversation({
   const pendingInitialWorkspaceRef = useRef<ProjectWorkspace | null>(null);
 
   useEffect(() => {
-    if (activeProject !== null) pendingInitialWorkspaceRef.current = null;
+    if (activeProject !== null) {
+      pendingInitialWorkspaceRef.current = null;
+    }
   }, [activeProject]);
 
   async function sendMessage(isInitialRequest = false) {
@@ -55,10 +58,14 @@ export function useProjectConversation({
         return;
       }
 
-      const requestMessages: Message[] = [
-        ...workspace.messages,
-        { role: "user", content: messageDraft },
-      ];
+      // NYT: Gem brugerbeskeden som en variabel, så præcis samme
+      // besked både bruges til AI-request og Supabase.
+      const userMessage: Message = {
+        role: "user",
+        content: messageDraft,
+      };
+
+      const requestMessages: Message[] = [...workspace.messages, userMessage];
 
       const setMessages = (updatedMessages: Message[]) => {
         updateProject(workspace.id, (currentWorkspace) => ({
@@ -82,6 +89,9 @@ export function useProjectConversation({
 
       mergeProjectResponse(response, persistedWorkspace.id);
 
+      // NYT: AI-kaldet lykkedes, så brugerbeskeden gemmes i Supabase.
+      await saveProjectMessage(persistedWorkspace.id, userMessage);
+
       if (response.complete) {
         if (isInitialRequest) {
           updateProject(persistedWorkspace.id, (currentWorkspace) => ({
@@ -90,15 +100,19 @@ export function useProjectConversation({
           }));
         }
       } else {
+        // NYT: Opret assistentbeskeden én gang og genbrug den
+        // både i Supabase og i workspace-state.
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: response.questions.join("\n"),
+        };
+
+        // NYT
+        await saveProjectMessage(persistedWorkspace.id, assistantMessage);
+
         updateProject(persistedWorkspace.id, (currentWorkspace) => ({
           ...currentWorkspace,
-          messages: [
-            ...requestMessages,
-            {
-              role: "assistant",
-              content: response.questions.join("\n"),
-            },
-          ],
+          messages: [...requestMessages, assistantMessage],
         }));
       }
 

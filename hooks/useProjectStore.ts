@@ -20,6 +20,7 @@ import { createProject as createProjectInDatabase } from "@/lib/projects/createP
 import { useEffect } from "react";
 import { updateProjectDraft } from "@/lib/projects/updateProjectDraft";
 import { saveProjectWorkItems } from "@/lib/projects/saveProjectWorkItems";
+import { saveProjectMaterials } from "@/lib/projects/saveProjectMaterials";
 
 const initialProjectStore: ProjectStore = {
   activeProjectId: null,
@@ -101,6 +102,7 @@ export function useProjectStore({ defaultHourlyRate }: UseProjectStoreOptions) {
       void Promise.all([
         updateProjectDraft(activeProject.id, activeProject.draft),
         saveProjectWorkItems(activeProject.id, activeProject.draft.workItems),
+        saveProjectMaterials(activeProject.id, activeProject.draft.materials),
       ]).catch((error) => {
         console.error("Could not save project:", error);
       });
